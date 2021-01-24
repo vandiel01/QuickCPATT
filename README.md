@@ -1,6 +1,14 @@
 # Quick Copy/Paste from ATT Data
 Tired of manually inputting numbers on your google drive or excel sheet to show off your number on weekly reset day?!?  Fear not!  Now this addon will quickly help you pull data to copy then paste to your outside application (excel, google sheet, etc)  This addon will NOT save or write or anything to ATT, it only reads what's given from `All The Things`.
 
+You will need to create an Google Drive or Excel Spreadsheet or whatever you perfer to use.  Or you can use already prepared sheet for you, you can always modify the sheet to suit your needs!
+
+Link for Google Drive Sheet (no macro/script, all Condition Formatting):
+https://docs.google.com/spreadsheets/d/10gNgY-IVCehRHCNCs4xlRHdIQmABCUcT7KAK2zb6HOA/edit?usp=sharing
+
+Link for Excel Spreadsheet (2007) (no macro/script, all Condition Formatting):
+https://drive.google.com/file/d/12sU2SwXDNQd6KsOKRG_oCW2_13TzbMDu/view?usp=sharing
+
 ## About Me
 I'm Vandiel, in ATT on Discord (Vandiel#2276) and on Korgath.  I'm by no means a expert programmer/coder, but like to learn and experiment things.  I'm always happy to have some insight and/or improvement to the code.
 
