@@ -1,0 +1,23 @@
+# Quick Copy/Paste from ATT Data
+	Tired of manually inputting numbers on your google drive or excel sheet to show off your number on weekly reset day?!?  Fear not!  Now this addon will quickly help you pull data to copy then paste to your outside application (excel, google sheet, etc)  This addon will NOT save or write or anything to ATT, it only reads what's given from `All The Things`.
+
+## About Me
+	I'm Vandiel, in ATT on Discord (Vandiel#2276) and on Korgath.  I'm by no means a expert programmer/coder, but like to learn and experiment things.  I'm always happy to have some insight and/or improvement to the code.
+
+## Contribute
+	Please report bugs on the [Github Issue Reporting] https://github.com/vandiel01/QuickCPATT/issues/new.
+
+	The use of [BugGrabber] https://www.curseforge.com/wow/addons/bug-grabber and [BugSack] https://www.curseforge.com/wow/addons/bugsack will help tremendously with the debugging process.
+
+	You can also contribute to the addon by [Donate] https://paypal.me/Vandiel01
+
+## How To Use
+	/qcp or /quickcp to use `Quick Copy/Paste`
+
+## Future Feature/Thoughts?
+	-Any new reasonable ideas are welcome :)
+
+## Image Samples
+	![QCSample1](Images/Image1.png)
+	![QCSample2](Images/Image2.png)
+	![QCSample3](Images/Image3.png)
