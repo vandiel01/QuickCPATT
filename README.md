@@ -3,9 +3,13 @@ Tired of manually inputting numbers on your google drive or excel sheet to show 
 
 You will need to create an Google Drive or Excel Spreadsheet or whatever you perfer to use.  Or you can use prepared sheet for you, you can always modify the sheet to suit your needs!
 
-No macro/script, Only Condition Formatting:
-Link for Google Drive Sheet: https://docs.google.com/spreadsheets/d/10gNgY-IVCehRHCNCs4xlRHdIQmABCUcT7KAK2zb6HOA/edit?usp=sharing
-Link for Excel Spreadsheet (2007): https://drive.google.com/file/d/12sU2SwXDNQd6KsOKRG_oCW2_13TzbMDu/view?usp=sharing
+No macro/script, Only Condition Formatting, link below:
+
+  Google Drive Sheet:
+  https://docs.google.com/spreadsheets/d/10gNgY-IVCehRHCNCs4xlRHdIQmABCUcT7KAK2zb6HOA/edit?usp=sharing
+  
+  Excel Spreadsheet (2007):
+  https://drive.google.com/file/d/12sU2SwXDNQd6KsOKRG_oCW2_13TzbMDu/view?usp=sharing
 
 ## About Me
 I'm Vandiel, in ATT on Discord (Vandiel#2276) and on Korgath.  I'm by no means a expert programmer/coder, but like to learn and experiment things.  I'm always happy to have some insight and/or improvement to the code.
