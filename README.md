@@ -1,5 +1,5 @@
 # Quick Copy/Paste from ATT Data
-Tired of manually inputting numbers on your google drive or excel sheet to show off your number on weekly reset day?!?  Fear not!  Now this addon will quickly help you pull data to copy then paste to your outside application (excel, google sheet, etc)  This addon will NOT save or write or anything to ATT, it only reads what's given from `All The Things`.
+Tired of manually inputting numbers on your google drive or excel sheet to show off your dungeon & raid numbers on weekly reset day or save for personal purpose?!?  Fear not!  Now this can quickly help you pull data to copy then paste to your outside application (excel, google sheet, etc)  This addon will NOT save or write or anything to ATT, it only reads what's given from `All The Things`.
 
 You will need to create an Google Drive or Excel Spreadsheet or whatever you perfer to use.  Or you can use prepared sheet for you, you can always modify the sheet to suit your needs!
 
