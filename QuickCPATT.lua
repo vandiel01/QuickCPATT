@@ -7,7 +7,7 @@ local ShowHide = true				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
 
 ------------------------------------------------------------------------
--- Checkbox Toggles
+-- Horz/Vert Toggles
 ------------------------------------------------------------------------
 	function vQCP_Toggle(arg)
 		if arg ~= nil then
@@ -25,8 +25,11 @@ local DecimalDefault = 2			-- Decimal Precision Default is 2
 			end
 		end
 	end
-	
+------------------------------------------------------------------------
+-- Single Expansion
+------------------------------------------------------------------------
 	function DRListTog(arg)
+		if vQCP_AllHdr:GetChecked() then vQCP_AllHdr:SetChecked(false) end
 		for i = 1, 9 do
 			_G["vQCP_DRHdr"..i]:SetChecked(false)
 		end
@@ -52,6 +55,42 @@ local DecimalDefault = 2			-- Decimal Precision Default is 2
 		end
 	end
 ------------------------------------------------------------------------
+-- All Expansion
+------------------------------------------------------------------------	
+	function AllListTog()
+		if vQCP_AllHdr:GetChecked() then
+			for i = 1, 9 do
+				_G["vQCP_DRHdr"..i]:SetChecked(false)
+			end
+		else
+			vQCP_RPArea:SetText("")
+			return
+		end
+			
+		if _G["AllTheThingsSettings"]["General"]["DebugMode"] then
+			vQCP_RPArea:SetText("|cFFFFFF00Not Recommended with\nATT DEBUG Mode|r")
+		else
+			vQCP_MainData = { AllTheThings.GetDataCache() }
+			vQCP_TotalDR = vQCP_MainData[1]["g"][1]["g"]
+			vTTable = {}
+
+			for j = 1, #vQCP_TotalDR do
+				vQCP_DRData = vQCP_MainData[1]["g"][1]["g"][j]["g"]
+				for i = 1, #vQCP_DRData do
+					if vQCP_DRData[i]["total"] ~= 0 then
+						tinsert(vTTable,
+							(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
+							string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
+							(vQCP_Opt1:GetChecked() and "\n" or "\t")
+						)
+					end
+				end
+			end
+
+			vQCP_RPArea:SetText(table.concat(vTTable,""))
+		end
+	end
+------------------------------------------------------------------------
 -- Nothing here, right?
 ------------------------------------------------------------------------
 function DoNothing(f,t)
@@ -72,7 +111,7 @@ end
 
 	local vQCP_Main = CreateFrame("Frame", "vQCP_Main", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		vQCP_Main:SetBackdrop(BDropA)
-		vQCP_Main:SetSize(325, 260)
+		vQCP_Main:SetSize(300, 320)
 		vQCP_Main:ClearAllPoints()
 		vQCP_Main:SetPoint("CENTER", UIParent)
 		vQCP_Main:EnableMouse(true)
@@ -108,7 +147,7 @@ end
 		
 	local vQCP_HdrDec = CreateFrame("EditBox", "vQCP_HdrDec", vQCP_Main, "InputBoxTemplate")
 		vQCP_HdrDec:SetSize(25,20)
-		vQCP_HdrDec:SetPoint("TOPLEFT", vQCP_Main, 145, -61)
+		vQCP_HdrDec:SetPoint("TOPLEFT", vQCP_Main, 165, -61)
 		vQCP_HdrDec:SetFont("Fonts\\FRIZQT__.TTF", 10)
 		vQCP_HdrDec:SetMaxLetters(10)
 		vQCP_HdrDec:SetAutoFocus(false)
@@ -118,8 +157,8 @@ end
 		vQCP_HdrDec:SetScript("OnEditFocusLost", function() if vQCP_HdrDec:GetText() == "" then vQCP_HdrDec:SetText(DecimalDefault) end end)
 			vQCP_HdrDec.Text = vQCP_HdrDec:CreateFontString("T")
 			vQCP_HdrDec.Text:SetFont("Fonts\\FRIZQT__.TTF", 10)
-			vQCP_HdrDec.Text:SetPoint("LEFT", vQCP_HdrDec, 35, 0)
-			vQCP_HdrDec.Text:SetText("Decimal Precision")
+			vQCP_HdrDec.Text:SetPoint("LEFT", vQCP_HdrDec, 30, 0)
+			vQCP_HdrDec.Text:SetText("Decimal Place")
 
 	OptList = { "Vertical", "Horizontal" }
 	DRHeight = -43
@@ -134,9 +173,14 @@ end
 				vQCP_Opt.Text:SetText(OptList[i])
 		DRHeight = DRHeight - 18
 	end
-
+	
+			vQCP_SingleHdr = vQCP_Main:CreateFontString("T")
+			vQCP_SingleHdr:SetFont("Fonts\\FRIZQT__.TTF", 10)
+			vQCP_SingleHdr:SetPoint("TOPLEFT", vQCP_Main, 5, -95)
+			vQCP_SingleHdr:SetText("|CFFFFFF00Individual Expansion|r")
+			
 	DRList = { "Classic", "Burning Crusade", "Wrath of Lich King", "Cataclysm", "Mists of Pandaria", "Warlords of Draenor", "Legion", "Battle for Azeroth", "Shadowlands" }
-	DRHeight = -90
+	DRHeight = -105
 	for i = 1, #DRList do
 		local vQCP_DRHdr = CreateFrame("CheckButton", "vQCP_DRHdr"..i, vQCP_Main, "ChatConfigCheckButtonTemplate")
 			vQCP_DRHdr:SetPoint("TOPLEFT", vQCP_Main, 5, DRHeight)
@@ -148,6 +192,20 @@ end
 				vQCP_DRHdr.Text:SetText(DRList[i])
 		DRHeight = DRHeight - 18
 	end
+
+		vQCP_MultiHdr = vQCP_Main:CreateFontString("T")
+		vQCP_MultiHdr:SetFont("Fonts\\FRIZQT__.TTF", 10)
+		vQCP_MultiHdr:SetPoint("TOPLEFT", vQCP_Main, 5, -280)
+		vQCP_MultiHdr:SetText("|cFFFFFF00All Raw Xpac Data|r")
+
+	local vQCP_AllHdr = CreateFrame("CheckButton", "vQCP_AllHdr", vQCP_Main, "ChatConfigCheckButtonTemplate")
+		vQCP_AllHdr:SetPoint("TOPLEFT", vQCP_Main, 5, -290)
+		vQCP_AllHdr:SetChecked(false)
+		vQCP_AllHdr:SetScript("OnClick", function() AllListTog(i) end)
+			vQCP_AllHdr.Text = vQCP_AllHdr:CreateFontString("T")
+			vQCP_AllHdr.Text:SetFont("Fonts\\FRIZQT__.TTF", 10)
+			vQCP_AllHdr.Text:SetPoint("LEFT", vQCP_AllHdr, 25, 0)
+			vQCP_AllHdr.Text:SetText("All Expansion")
 
 	local vQCP_RightPane = CreateFrame("Frame", "vQCP_RightPane", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
 		vQCP_RightPane:SetBackdrop(BDropA)
