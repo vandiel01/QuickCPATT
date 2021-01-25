@@ -1,6 +1,12 @@
 -- Credit `ALL THE THINGS` to Crieve/Dylan
 -- This Addon will NOT save or write or anything to ATT, it only reads what's given.
 ------------------------------------------------------------------------
+-- User Modification If Needed
+------------------------------------------------------------------------
+local ShowHide = true				-- Show (True)/Hide (False) All Times
+local DecimalDefault = 2			-- Decimal Precision Default is 2
+
+------------------------------------------------------------------------
 -- Checkbox Toggles
 ------------------------------------------------------------------------
 	function vQCP_Toggle(arg)
@@ -35,7 +41,11 @@
 			wipe(vTTable)
 			for i = 1, #vQCP_DRData do
 				if vQCP_DRData[i]["total"] ~= 0 then
-					tinsert(vTTable,(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..string.format("%.2f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..(vQCP_Opt1:GetChecked() and "\n" or "\t"))
+					tinsert(vTTable,
+						(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
+						string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
+						(vQCP_Opt1:GetChecked() and "\n" or "\t")
+					)
 				end
 			end
 			vQCP_RPArea:SetText(table.concat(vTTable,""))
@@ -71,7 +81,7 @@ end
 		vQCP_Main:SetScript("OnDragStart", function() vQCP_Main:StartMoving() end)
 		vQCP_Main:SetScript("OnDragStop", function() vQCP_Main:StopMovingOrSizing() end)
 		vQCP_Main:SetClampedToScreen(true)
-		vQCP_Main:Hide()
+		if not ShowHide then vQCP_Main:Hide() end
 
 	local vQCP_Title = CreateFrame("Frame", "vQCP_Title", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
 		vQCP_Title:SetBackdrop(BDropA)
@@ -95,6 +105,21 @@ end
 			vQCP_WHdr.Text:SetFont("Fonts\\FRIZQT__.TTF", 10)
 			vQCP_WHdr.Text:SetPoint("LEFT", vQCP_WHdr, 25, 0)
 			vQCP_WHdr.Text:SetText("Check To Include D&R Header [Default: Off]")
+		
+	local vQCP_HdrDec = CreateFrame("EditBox", "vQCP_HdrDec", vQCP_Main, "InputBoxTemplate")
+		vQCP_HdrDec:SetSize(25,20)
+		vQCP_HdrDec:SetPoint("TOPLEFT", vQCP_Main, 145, -61)
+		vQCP_HdrDec:SetFont("Fonts\\FRIZQT__.TTF", 10)
+		vQCP_HdrDec:SetMaxLetters(10)
+		vQCP_HdrDec:SetAutoFocus(false)
+		vQCP_HdrDec:SetMultiLine(false)
+		vQCP_HdrDec:SetNumeric(true)
+		vQCP_HdrDec:SetNumber(DecimalDefault)
+		vQCP_HdrDec:SetScript("OnEditFocusLost", function() if vQCP_HdrDec:GetText() == "" then vQCP_HdrDec:SetText(DecimalDefault) end end)
+			vQCP_HdrDec.Text = vQCP_HdrDec:CreateFontString("T")
+			vQCP_HdrDec.Text:SetFont("Fonts\\FRIZQT__.TTF", 10)
+			vQCP_HdrDec.Text:SetPoint("LEFT", vQCP_HdrDec, 35, 0)
+			vQCP_HdrDec.Text:SetText("Decimal Precision")
 
 	OptList = { "Vertical", "Horizontal" }
 	DRHeight = -43
@@ -126,9 +151,9 @@ end
 
 	local vQCP_RightPane = CreateFrame("Frame", "vQCP_RightPane", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
 		vQCP_RightPane:SetBackdrop(BDropA)
-		vQCP_RightPane:SetSize(vQCP_Main:GetWidth()-140, vQCP_Main:GetHeight()-56)
+		vQCP_RightPane:SetSize(vQCP_Main:GetWidth()-140, vQCP_Main:GetHeight()-96)
 		vQCP_RightPane:ClearAllPoints()
-		vQCP_RightPane:SetPoint("TOPRIGHT", vQCP_Main, -2, -53)
+		vQCP_RightPane:SetPoint("TOPRIGHT", vQCP_Main, -2, -93)
 		
 		local vQCP_RPScr = CreateFrame("ScrollFrame", "vQCP_RPScr", vQCP_RightPane, "UIPanelScrollFrameTemplate")
 			vQCP_RPScr:SetPoint("TOPLEFT", vQCP_RightPane, 7, -7)
@@ -140,6 +165,7 @@ end
 				vQCP_RPArea:SetAutoFocus(false)
 				vQCP_RPArea:SetMultiLine(true)
 				vQCP_RPArea:EnableMouse(true)
+				vQCP_RPArea:SetScript("OnEditFocusGained", function() vQCP_RPArea:HighlightText() end)
 			vQCP_RPScr:SetScrollChild(vQCP_RPArea)
 ------------------------------------------------------------------------
 -- Fire Up Events
@@ -156,11 +182,12 @@ end
 			SlashCmdList["QuickCPATT"] = function(arg)
 				if IsAddOnLoaded("AllTheThings") then
 					if vQCP_Main:IsVisible() then vQCP_Main:Hide() else vQCP_Main:Show() end
-					_G["vQCP_Opt2"]:SetChecked(true)
+					_G["vQCP_Opt1"]:SetChecked(true)
 				else
 					DEFAULT_CHAT_FRAME:AddMessage("Error: Cannot Run This without `All The Things`")
 				end
 			end
+			if ShowHide then _G["vQCP_Opt1"]:SetChecked(true) end
 			vQCP_OnUpdate:UnregisterEvent("ADDON_LOADED")
 			vQCP_OnUpdate:UnregisterEvent("PLAYER_LOGIN")
 		end
