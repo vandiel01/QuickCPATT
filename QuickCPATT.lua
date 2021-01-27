@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
-local ShowHide = false				-- Show (True)/Hide (False) All Times
+local ShowHide = true				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
 local AllXpacATTPercent = true		-- All Xpac w ATT % (true) else False for Normal Operations
 
@@ -101,7 +101,6 @@ local vTTable = {}
 					((vQCP_TotalDR[j]["progress"] == 0 and vQCP_TotalDR[j]["total"] == 0) and string.format("%."..vQCP_HdrDec:GetNumber().."f","0") or string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_TotalDR[j]["progress"]/vQCP_TotalDR[j]["total"])*100))..
 					(vQCP_Opt1:GetChecked() and "\n" or "\t")
 				)
-				print(vQCP_TotalDR[j]["text"],vQCP_TotalDR[j]["progress"],vQCP_TotalDR[j]["total"])
 			end
 		end
 		vQCP_RPArea:SetText(table.concat(vTTable,""))
