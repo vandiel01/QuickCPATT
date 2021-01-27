@@ -3,10 +3,14 @@
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
-local ShowHide = true				-- Show (True)/Hide (False) All Times
+local ShowHide = false				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
-local AllXpacATTPercent = false		-- All Xpac w ATT % (true) else False for Normal Operations
+local AllXpacATTPercent = true		-- All Xpac w ATT % (true) else False for Normal Operations
 
+------------------------------------------------------------------------
+-- Global Localizations
+------------------------------------------------------------------------
+local vTTable = {}
 ------------------------------------------------------------------------
 -- Horz/Vert Toggles
 ------------------------------------------------------------------------
@@ -16,13 +20,10 @@ local AllXpacATTPercent = false		-- All Xpac w ATT % (true) else False for Norma
 			_G["vQCP_Opt"..arg]:SetChecked(true)
 		end
 		
-		if _G["AllTheThingsSettings"]["General"]["DebugMode"] then
-			vQCP_RPArea:SetText("|cFFFFFF00Not Recommended with\nATT DEBUG Mode|r")
-		else
-			for j = 1, 9 do
-				if _G["vQCP_DRHdr"..j]:GetChecked() then DRListTog(j) break end
-			end
+		for j = 1, 9 do
+			if _G["vQCP_DRHdr"..j]:GetChecked() then DRListTog(j) break end
 		end
+
 	end
 ------------------------------------------------------------------------
 -- Single Expansion
@@ -32,24 +33,20 @@ local AllXpacATTPercent = false		-- All Xpac w ATT % (true) else False for Norma
 		for i = 1, 9 do _G["vQCP_DRHdr"..i]:SetChecked(false) end
 		_G["vQCP_DRHdr"..arg]:SetChecked(true)
 			
-		if _G["AllTheThingsSettings"]["General"]["DebugMode"] then
-			vQCP_RPArea:SetText("|cFFFFFF00Not Recommended with\nATT DEBUG Mode|r")
-		else
-			local vQCP_MaData = { AllTheThings.GetDataCache() }
-			local vQCP_DRData = vQCP_MaData[1]["g"][1]["g"][arg]["g"]
-			local vTTable = {}
-			wipe(vTTable)
-			for i = 1, #vQCP_DRData do
-				if vQCP_DRData[i]["total"] ~= 0 then
-					tinsert(vTTable,
-						(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
-						string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
-						(vQCP_Opt1:GetChecked() and "\n" or "\t")
-					)
-				end
+		local vQCP_MaData = { AllTheThings.GetDataCache() }
+		local vQCP_DRData = vQCP_MaData[1]["g"][1]["g"][arg]["g"]
+		
+		wipe(vTTable)
+		for i = 1, #vQCP_DRData do
+			if vQCP_DRData[i]["total"] ~= 0 then
+				tinsert(vTTable,
+					(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
+					string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
+					(vQCP_Opt1:GetChecked() and "\n" or "\t")
+				)
 			end
-			vQCP_RPArea:SetText(table.concat(vTTable,""))
 		end
+		vQCP_RPArea:SetText(table.concat(vTTable,""))
 	end
 ------------------------------------------------------------------------
 -- All Expansion
@@ -58,47 +55,74 @@ local AllXpacATTPercent = false		-- All Xpac w ATT % (true) else False for Norma
 		for i = 1, 9 do _G["vQCP_DRHdr"..i]:SetChecked(false) end
 		for i = 1, 2 do _G["vQCP_AllHdr"..i]:SetChecked(false) end	
 		_G["vQCP_AllHdr"..arg]:SetChecked(true)
-			
-		if _G["AllTheThingsSettings"]["General"]["DebugMode"] then
-			vQCP_RPArea:SetText("|cFFFFFF00Not Recommended with\nATT DEBUG Mode|r")
-		else
-			vQCP_MainData = { AllTheThings.GetDataCache() }
-			vQCP_TotalDR = vQCP_MainData[1]["g"][1]["g"]
-			local vTTable = {}
+		
+		vQCP_MainData = { AllTheThings.GetDataCache() }
+		vQCP_TotalDR = vQCP_MainData[1]["g"][1]["g"]
+		wipe(vTTable)
 
-			for j = 1, #vQCP_TotalDR do
-				vQCP_DRData = vQCP_MainData[1]["g"][1]["g"][j]["g"]
+		for j = 1, #vQCP_TotalDR do
+			vQCP_DRData = vQCP_MainData[1]["g"][1]["g"][j]["g"]
+			
+			if arg == 2 then
+				tinsert(vTTable,
+					(vQCP_WHdr:GetChecked() and vQCP_TotalDR[j]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
+					string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_TotalDR[j]["progress"]/vQCP_TotalDR[j]["total"])*100)..
+					(vQCP_Opt1:GetChecked() and "\n" or "\t")
+				)
+			end
+			
+			for i = 1, #vQCP_DRData do
+				if vQCP_DRData[i]["total"] ~= 0 then
 				
-				if arg == 2 then
 					tinsert(vTTable,
-						(vQCP_WHdr:GetChecked() and vQCP_TotalDR[j]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
-						string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_TotalDR[j]["progress"]/vQCP_TotalDR[j]["total"])*100)..
+						(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
+						string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
 						(vQCP_Opt1:GetChecked() and "\n" or "\t")
-					)
-				end
-				
-				for i = 1, #vQCP_DRData do
-					if vQCP_DRData[i]["total"] ~= 0 then
+					)	
 					
-						tinsert(vTTable,
-							(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
-							string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
-							(vQCP_Opt1:GetChecked() and "\n" or "\t")
-						)	
-						
-					end
 				end
 			end
-			vQCP_RPArea:SetText(table.concat(vTTable,""))
 		end
+		vQCP_RPArea:SetText(table.concat(vTTable,""))
+
+	end
+------------------------------------------------------------------------
+-- Main % List Only
+------------------------------------------------------------------------	
+	function ATTMainList()
+		vQCP_MainData = { AllTheThings.GetDataCache() }
+		vQCP_TotalDR = vQCP_MainData[1]["g"]
+		wipe(vTTable)
+
+		for j = 1, #vQCP_TotalDR do
+			if j ~= 22 then
+				tinsert(vTTable,
+					(vQCP_WHdr:GetChecked() and vQCP_TotalDR[j]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
+					((vQCP_TotalDR[j]["progress"] == 0 and vQCP_TotalDR[j]["total"] == 0) and string.format("%."..vQCP_HdrDec:GetNumber().."f","0") or string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_TotalDR[j]["progress"]/vQCP_TotalDR[j]["total"])*100))..
+					(vQCP_Opt1:GetChecked() and "\n" or "\t")
+				)
+				print(vQCP_TotalDR[j]["text"],vQCP_TotalDR[j]["progress"],vQCP_TotalDR[j]["total"])
+			end
+		end
+		vQCP_RPArea:SetText(table.concat(vTTable,""))
+	end
+------------------------------------------------------------------------
+-- Check Mode on ATT
+------------------------------------------------------------------------
+	function CheckATT()
+		if _G["AllTheThingsSettings"]["General"]["Completionist"] then v = "Completionist" else v = "Unique" end
+		if _G["AllTheThingsSettings"]["General"]["AccountMode"] then v = "Account" end
+		if _G["AllTheThingsSettings"]["General"]["DebugMode"] then v = "DEBUG" end
+		
+		vQCP_WarnHeader.T:SetText("Heads up! You're on\n -- |cFFFFFF00 "..v.." |r --\nmode!")
 	end
 ------------------------------------------------------------------------
 -- Nothing here, right?
 ------------------------------------------------------------------------
-function DoNothing(f,t)
-	print("Did I Forget Something Here on "..f.." ?", t)
-	--I mean, it's obvious isn't it?
-end
+	function DoNothing(f,t)
+		print("Did I Forget Something Here on "..f.." ?", t)
+		--I mean, it's obvious isn't it?
+	end
 ------------------------------------------------------------------------
 -- Framing
 ------------------------------------------------------------------------
@@ -110,10 +134,18 @@ end
 		edgeSize = 16,
 		insets = { left = 4, right = 4, top = 4, bottom = 4 }
 	}
+	local BDropB = {
+		edgeFile = "Interface\\ToolTips\\UI-Tooltip-Border",
+		bgFile = "Interface\\BankFrame\\Bank-Background",
+		tileEdge = true,
+		tileSize = 16,
+		edgeSize = 16,
+		insets = { left = 4, right = 4, top = 4, bottom = 4 }
+	}
 
 	local vQCP_Main = CreateFrame("Frame", "vQCP_Main", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		vQCP_Main:SetBackdrop(BDropA)
-		vQCP_Main:SetSize(300, 335)
+		vQCP_Main:SetSize(300, 380)
 		vQCP_Main:ClearAllPoints()
 		vQCP_Main:SetPoint("CENTER", UIParent)
 		vQCP_Main:EnableMouse(true)
@@ -125,7 +157,7 @@ end
 		if not ShowHide then vQCP_Main:Hide() end
 
 	local vQCP_Title = CreateFrame("Frame", "vQCP_Title", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
-		vQCP_Title:SetBackdrop(BDropA)
+		vQCP_Title:SetBackdrop(BDropB)
 		vQCP_Title:SetSize(vQCP_Main:GetWidth()-4,24)
 		vQCP_Title:ClearAllPoints()
 		vQCP_Title:SetPoint("TOP", vQCP_Main, 0, -2)
@@ -149,7 +181,7 @@ end
 		
 	local vQCP_HdrDec = CreateFrame("EditBox", "vQCP_HdrDec", vQCP_Main, "InputBoxTemplate")
 		vQCP_HdrDec:SetSize(25,20)
-		vQCP_HdrDec:SetPoint("TOPLEFT", vQCP_Main, 165, -61)
+		vQCP_HdrDec:SetPoint("TOPLEFT", vQCP_Main, 150, -61)
 		vQCP_HdrDec:SetFont("Fonts\\FRIZQT__.TTF", 10)
 		vQCP_HdrDec:SetMaxLetters(10)
 		vQCP_HdrDec:SetAutoFocus(false)
@@ -160,7 +192,7 @@ end
 			vQCP_HdrDec.Text = vQCP_HdrDec:CreateFontString("T")
 			vQCP_HdrDec.Text:SetFont("Fonts\\FRIZQT__.TTF", 10)
 			vQCP_HdrDec.Text:SetPoint("LEFT", vQCP_HdrDec, 30, 0)
-			vQCP_HdrDec.Text:SetText("Decimal Place")
+			vQCP_HdrDec.Text:SetText("Decimal Precision")
 
 	OptList = { "Vertical", "Horizontal" }
 	DRHeight = -43
@@ -176,10 +208,10 @@ end
 		DRHeight = DRHeight - 18
 	end
 	
-			vQCP_SingleHdr = vQCP_Main:CreateFontString("T")
-			vQCP_SingleHdr:SetFont("Fonts\\FRIZQT__.TTF", 10)
-			vQCP_SingleHdr:SetPoint("TOPLEFT", vQCP_Main, 5, -95)
-			vQCP_SingleHdr:SetText("|CFFFFFF00Individual Expansion|r")
+		vQCP_Header = vQCP_Main:CreateFontString("T")
+		vQCP_Header:SetFont("Fonts\\FRIZQT__.TTF", 10)
+		vQCP_Header:SetPoint("TOPLEFT", vQCP_Main, 10, -95)
+		vQCP_Header:SetText("|CFFFFFF00Individual Expansion|r")
 			
 	DRList = { "Classic", "Burning Crusade", "Wrath of Lich King", "Cataclysm", "Mists of Pandaria", "Warlords of Draenor", "Legion", "Battle for Azeroth", "Shadowlands" }
 	DRHeight = -105
@@ -195,10 +227,10 @@ end
 		DRHeight = DRHeight - 18
 	end
 
-		vQCP_MultiHdr = vQCP_Main:CreateFontString("T")
-		vQCP_MultiHdr:SetFont("Fonts\\FRIZQT__.TTF", 10)
-		vQCP_MultiHdr:SetPoint("TOPLEFT", vQCP_Main, 5, -280)
-		vQCP_MultiHdr:SetText("|cFFFFFF00All Raw Xpac Data|r")
+		vQCP_Header = vQCP_Main:CreateFontString("T")
+		vQCP_Header:SetFont("Fonts\\FRIZQT__.TTF", 10)
+		vQCP_Header:SetPoint("TOPLEFT", vQCP_Main, 10, -280)
+		vQCP_Header:SetText("|cFFFFFF00All Raw Xpac Data|r")
 
 	AllList = { "All Expansion - No %", "All Expansion - ATT %" }
 	DRHeight = -290
@@ -214,12 +246,23 @@ end
 		DRHeight = DRHeight - 18
 	end
 	
+		vQCP_Header = vQCP_Main:CreateFontString("T")
+		vQCP_Header:SetFont("Fonts\\FRIZQT__.TTF", 10)
+		vQCP_Header:SetPoint("TOPLEFT", vQCP_Main, 10, -340)
+		vQCP_Header:SetText("|cFFFFFF00Main ATT List % Only|r")
+		
+		local vQCP_MainList = CreateFrame("Button", "vQCP_MainList", vQCP_Main, "UIPanelButtonTemplate")
+			vQCP_MainList:SetSize(120,20)
+			vQCP_MainList:SetPoint("TOPLEFT", vQCP_Main, 5, -353)
+			vQCP_MainList:SetText("ATT List % Only")
+			vQCP_MainList:SetScript("OnClick", function() ATTMainList() end)
+
+	--RIGHT SIDE
 	local vQCP_RightPane = CreateFrame("Frame", "vQCP_RightPane", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
 		vQCP_RightPane:SetBackdrop(BDropA)
-		vQCP_RightPane:SetSize(vQCP_Main:GetWidth()-145, vQCP_Main:GetHeight()-95)
+		vQCP_RightPane:SetSize(vQCP_Main:GetWidth()-145, vQCP_Main:GetHeight()-136)
 		vQCP_RightPane:ClearAllPoints()
-		vQCP_RightPane:SetPoint("TOPRIGHT", vQCP_Main, -2, -93)
-		
+		vQCP_RightPane:SetPoint("TOPRIGHT", vQCP_Main, -2, -133)
 		local vQCP_RPScr = CreateFrame("ScrollFrame", "vQCP_RPScr", vQCP_RightPane, "UIPanelScrollFrameTemplate")
 			vQCP_RPScr:SetPoint("TOPLEFT", vQCP_RightPane, 7, -7)
 			vQCP_RPScr:SetWidth(vQCP_RightPane:GetWidth()-35)
@@ -232,6 +275,17 @@ end
 				vQCP_RPArea:EnableMouse(true)
 				vQCP_RPArea:SetScript("OnEditFocusGained", function() vQCP_RPArea:HighlightText() end)
 			vQCP_RPScr:SetScrollChild(vQCP_RPArea)
+
+	local vQCP_WarnHeader = CreateFrame("Frame", "vQCP_WarnHeader", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
+		vQCP_WarnHeader:SetBackdrop(BDropB)
+		vQCP_WarnHeader:SetSize(vQCP_Main:GetWidth()-145, 55)
+		vQCP_WarnHeader:ClearAllPoints()
+		vQCP_WarnHeader:SetPoint("TOPRIGHT", vQCP_Main, -2, -80)
+			vQCP_WarnHeader.T = vQCP_WarnHeader:CreateFontString("T")
+			vQCP_WarnHeader.T:SetFont("Fonts\\FRIZQT__.TTF", 12)
+			vQCP_WarnHeader.T:SetPoint("CENTER", vQCP_WarnHeader, "CENTER", 0, 0)
+			vQCP_WarnHeader.T:SetText()
+
 ------------------------------------------------------------------------
 -- Fire Up Events
 ------------------------------------------------------------------------
@@ -259,3 +313,4 @@ end
 			vQCP_OnUpdate:UnregisterEvent("PLAYER_LOGIN")
 		end
 	end)
+	_G["AllTheThings"]["Settings"]:HookScript("OnUpdate",CheckATT)
