@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
-local ShowHide = true				-- Show (True)/Hide (False) All Times
+local ShowHide = false				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
 local AllXpacATTPercent = true		-- All Xpac w ATT % (true) else False for Normal Operations
 
@@ -15,6 +15,7 @@ local vTTable = {}
 -- Horz/Vert Toggles
 ------------------------------------------------------------------------
 	function vQCP_Toggle(arg)
+		Status = xpcall(CheckATT(), err)
 		if arg ~= nil then
 			for i = 1, 2 do _G["vQCP_Opt"..i]:SetChecked(false) end
 			_G["vQCP_Opt"..arg]:SetChecked(true)
@@ -23,12 +24,12 @@ local vTTable = {}
 		for j = 1, 9 do
 			if _G["vQCP_DRHdr"..j]:GetChecked() then DRListTog(j) break end
 		end
-
 	end
 ------------------------------------------------------------------------
 -- Single Expansion
 ------------------------------------------------------------------------
 	function DRListTog(arg)
+		Status = xpcall(CheckATT(), err)
 		for i = 1, 2 do _G["vQCP_AllHdr"..i]:SetChecked(false) end	
 		for i = 1, 9 do _G["vQCP_DRHdr"..i]:SetChecked(false) end
 		_G["vQCP_DRHdr"..arg]:SetChecked(true)
@@ -52,6 +53,7 @@ local vTTable = {}
 -- All Expansion
 ------------------------------------------------------------------------	
 	function AllListTog(arg)
+		Status = xpcall(CheckATT(), err)
 		for i = 1, 9 do _G["vQCP_DRHdr"..i]:SetChecked(false) end
 		for i = 1, 2 do _G["vQCP_AllHdr"..i]:SetChecked(false) end	
 		_G["vQCP_AllHdr"..arg]:SetChecked(true)
@@ -73,29 +75,27 @@ local vTTable = {}
 			
 			for i = 1, #vQCP_DRData do
 				if vQCP_DRData[i]["total"] ~= 0 then
-				
 					tinsert(vTTable,
 						(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
 						string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
 						(vQCP_Opt1:GetChecked() and "\n" or "\t")
 					)	
-					
 				end
 			end
 		end
-		vQCP_RPArea:SetText(table.concat(vTTable,""))
-
+		vQCP_RPArea:SetText("\n"..table.concat(vTTable,""))
 	end
 ------------------------------------------------------------------------
 -- Main % List Only
 ------------------------------------------------------------------------	
 	function ATTMainList()
+		Status = xpcall(CheckATT(), err)
 		vQCP_MainData = { AllTheThings.GetDataCache() }
 		vQCP_TotalDR = vQCP_MainData[1]["g"]
 		wipe(vTTable)
 
 		for j = 1, #vQCP_TotalDR do
-			if j ~= 22 then
+			if j < 22 then
 				tinsert(vTTable,
 					(vQCP_WHdr:GetChecked() and vQCP_TotalDR[j]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
 					((vQCP_TotalDR[j]["progress"] == 0 and vQCP_TotalDR[j]["total"] == 0) and string.format("%."..vQCP_HdrDec:GetNumber().."f","0") or string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_TotalDR[j]["progress"]/vQCP_TotalDR[j]["total"])*100))..
@@ -109,18 +109,12 @@ local vTTable = {}
 -- Check Mode on ATT
 ------------------------------------------------------------------------
 	function CheckATT()
-		if _G["AllTheThingsSettings"]["General"]["Completionist"] then v = "Completionist" else v = "Unique" end
+		v = ""
 		if _G["AllTheThingsSettings"]["General"]["AccountMode"] then v = "Account" end
+		if _G["AllTheThingsSettings"]["General"]["Completionist"] then v = v.." Completionist" else v = v.." Unique" end
 		if _G["AllTheThingsSettings"]["General"]["DebugMode"] then v = "DEBUG" end
 		
 		vQCP_WarnHeader.T:SetText("Heads up! You're on\n -- |cFFFFFF00 "..v.." |r --\nmode!")
-	end
-------------------------------------------------------------------------
--- Nothing here, right?
-------------------------------------------------------------------------
-	function DoNothing(f,t)
-		print("Did I Forget Something Here on "..f.." ?", t)
-		--I mean, it's obvious isn't it?
 	end
 ------------------------------------------------------------------------
 -- Framing
@@ -141,7 +135,24 @@ local vTTable = {}
 		edgeSize = 16,
 		insets = { left = 4, right = 4, top = 4, bottom = 4 }
 	}
-
+------------------------------------------------------------------------
+-- Mini Map Button
+------------------------------------------------------------------------
+	local vQCP_MiniMap = CreateFrame("Button", "vQCP_MiniMap", Minimap)
+		vQCP_MiniMap:SetFrameLevel(8)
+		vQCP_MiniMap:SetSize(40, 40)
+		vQCP_MiniMap:SetNormalTexture("Interface\\Store\\category-icon-services")
+		vQCP_MiniMap:ClearAllPoints()
+		vQCP_MiniMap:SetPoint("BOTTOMLEFT", Minimap, "BOTTOMLEFT", 0, -20)
+		vQCP_MiniMap:SetMovable(false)
+		vQCP_MiniMap:RegisterForDrag("LeftButton")
+		vQCP_MiniMap:SetScript("OnClick", function()
+			if vQCP_Main:IsVisible() then vQCP_Main:Hide() else vQCP_Main:Show() end
+			_G["vQCP_Opt1"]:SetChecked(true)
+		end)
+------------------------------------------------------
+-- Rest of the Frames
+------------------------------------------------------------------------
 	local vQCP_Main = CreateFrame("Frame", "vQCP_Main", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		vQCP_Main:SetBackdrop(BDropA)
 		vQCP_Main:SetSize(300, 380)
@@ -179,7 +190,7 @@ local vTTable = {}
 			vQCP_WHdr.Text:SetText("Check To Include D&R Header [Default: Off]")
 		
 	local vQCP_HdrDec = CreateFrame("EditBox", "vQCP_HdrDec", vQCP_Main, "InputBoxTemplate")
-		vQCP_HdrDec:SetSize(25,20)
+		vQCP_HdrDec:SetSize(24,20)
 		vQCP_HdrDec:SetPoint("TOPLEFT", vQCP_Main, 150, -61)
 		vQCP_HdrDec:SetFont("Fonts\\FRIZQT__.TTF", 10)
 		vQCP_HdrDec:SetMaxLetters(10)
@@ -231,7 +242,7 @@ local vTTable = {}
 		vQCP_Header:SetPoint("TOPLEFT", vQCP_Main, 10, -280)
 		vQCP_Header:SetText("|cFFFFFF00All Raw Xpac Data|r")
 
-	AllList = { "All Expansion - No %", "All Expansion - ATT %" }
+	AllList = { "All Exp - No Hdr %", "All Exp - ATT Hdr %" }
 	DRHeight = -290
 	for i = 1, #AllList do
 		local vQCP_AllHdr = CreateFrame("CheckButton", "vQCP_AllHdr"..i, vQCP_Main, "ChatConfigCheckButtonTemplate")
@@ -293,23 +304,27 @@ local vTTable = {}
 	vQCP_OnUpdate:SetScript("OnEvent", function(self, event, ...)
 		if event == "ADDON_LOADED" then
 			vQCP_OnUpdate:RegisterEvent("PLAYER_LOGIN")
+			vQCP_OnUpdate:UnregisterEvent("ADDON_LOADED")
 		end
 		if event == "PLAYER_LOGIN" then
 			SLASH_QuickCPATT1 = '/qcp'
 			SLASH_QuickCPATT2 = '/quickcp'
+			
 			SlashCmdList["QuickCPATT"] = function(arg)
 				if IsAddOnLoaded("AllTheThings") then
 					if vQCP_Main:IsVisible() then vQCP_Main:Hide() else vQCP_Main:Show() end
 					_G["vQCP_Opt1"]:SetChecked(true)
+					
 				else
 					DEFAULT_CHAT_FRAME:AddMessage("Error: Cannot Run This without `All The Things`")
 				end
 			end
+
 			if ShowHide then _G["vQCP_Opt1"]:SetChecked(true) end
 			if AllXpacATTPercent then _G["vQCP_AllHdr2"]:SetChecked(true) end
-			
-			vQCP_OnUpdate:UnregisterEvent("ADDON_LOADED")
+
 			vQCP_OnUpdate:UnregisterEvent("PLAYER_LOGIN")
 		end
 	end)
-	_G["AllTheThings"]["Settings"]:HookScript("OnUpdate",CheckATT)
+	Status = xpcall(CheckATT(), err)
+	

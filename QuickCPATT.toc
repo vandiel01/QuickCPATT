@@ -1,9 +1,9 @@
 ## Author: Vandiel
-## Interface: 90002
+## Interface: 90005
 ## Name: QuickCPATT
 ## Title: .|TInterface\ICONS\Achievement_ScenarioChallenge_100:0|t Quick C/P ATT
-## Version: 1.0-Beta
-## Notes: Pulls Data from ATT Quickly to allow Copy/Paste as Excel Format - Hortizonal or Vertical method...
+## Version: 1.1-Beta
+## Notes: Pulls Data from ATT Quickly to allow Copy/Paste as Excel Format...
 
 ## Dependencies: AllTheThings
 
