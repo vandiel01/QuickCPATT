@@ -4,6 +4,7 @@
 -- User Modification If Needed
 ------------------------------------------------------------------------
 local ShowHide = false				-- Show (True)/Hide (False) All Times
+--local ShowHide = true				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
 local AllXpacATTPercent = true		-- All Xpac w ATT % (true) else False for Normal Operations
 
@@ -74,7 +75,7 @@ local vTTable = {}
 			end
 			
 			for i = 1, #vQCP_DRData do
-				if vQCP_DRData[i]["total"] ~= 0 then
+				if (vQCP_DRData[i]["total"] or vQCP_DRData[i]["progress"]) and vQCP_DRData[i]["text"] ~= "Currencies" then
 					tinsert(vTTable,
 						(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
 						string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
