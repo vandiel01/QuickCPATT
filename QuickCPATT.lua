@@ -3,8 +3,8 @@
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
-local ShowHide = false				-- Show (True)/Hide (False) All Times
---local ShowHide = true				-- Show (True)/Hide (False) All Times
+--local ShowHide = false				-- Show (True)/Hide (False) All Times
+local ShowHide = true				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
 local AllXpacATTPercent = true		-- All Xpac w ATT % (true) else False for Normal Operations
 
@@ -40,7 +40,7 @@ local vTTable = {}
 		
 		wipe(vTTable)
 		for i = 1, #vQCP_DRData do
-			if vQCP_DRData[i]["total"] ~= 0 then
+			if (vQCP_DRData[i]["total"] or vQCP_DRData[i]["progress"]) and vQCP_DRData[i]["text"] ~= "Currencies" then
 				tinsert(vTTable,
 					(vQCP_WHdr:GetChecked() and vQCP_DRData[i]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
 					string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_DRData[i]["progress"]/vQCP_DRData[i]["total"])*100)..
@@ -96,7 +96,7 @@ local vTTable = {}
 		wipe(vTTable)
 
 		for j = 1, #vQCP_TotalDR do
-			if j < 22 then
+			if j < 20 then
 				tinsert(vTTable,
 					(vQCP_WHdr:GetChecked() and vQCP_TotalDR[j]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
 					((vQCP_TotalDR[j]["progress"] == 0 and vQCP_TotalDR[j]["total"] == 0) and string.format("%."..vQCP_HdrDec:GetNumber().."f","0") or string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_TotalDR[j]["progress"]/vQCP_TotalDR[j]["total"])*100))..

@@ -2,7 +2,7 @@
 ## Interface: 90005
 ## Name: QuickCPATT
 ## Title: .|TInterface\ICONS\Achievement_ScenarioChallenge_100:0|t Quick C/P ATT
-## Version: 1.1-Beta
+## Version: 1.2
 ## Notes: Pulls Data from ATT Quickly to allow Copy/Paste as Excel Format...
 
 ## Dependencies: AllTheThings
