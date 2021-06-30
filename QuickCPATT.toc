@@ -1,5 +1,5 @@
 ## Author: Vandiel
-## Interface: 90005
+## Interface: 90100
 ## Name: QuickCPATT
 ## Title: .|TInterface\ICONS\Achievement_ScenarioChallenge_100:0|t Quick C/P ATT
 ## Version: 1.2
