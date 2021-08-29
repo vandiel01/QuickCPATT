@@ -91,12 +91,13 @@ local vTTable = {}
 ------------------------------------------------------------------------	
 	function ATTMainList()
 		Status = xpcall(CheckATT(), err)
+		
 		vQCP_MainData = { AllTheThings.GetDataCache() }
 		vQCP_TotalDR = vQCP_MainData[1]["g"]
 		wipe(vTTable)
 
 		for j = 1, #vQCP_TotalDR do
-			if j < 20 then
+			if j < 21 then
 				tinsert(vTTable,
 					(vQCP_WHdr:GetChecked() and vQCP_TotalDR[j]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
 					((vQCP_TotalDR[j]["progress"] == 0 and vQCP_TotalDR[j]["total"] == 0) and string.format("%."..vQCP_HdrDec:GetNumber().."f","0") or string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_TotalDR[j]["progress"]/vQCP_TotalDR[j]["total"])*100))..
