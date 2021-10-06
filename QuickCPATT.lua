@@ -7,6 +7,7 @@
 local ShowHide = false				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
 local AllXpacATTPercent = true		-- All Xpac w ATT % (true) else False for Normal Operations
+local NumberOfATTLines = 22			-- ATT Famously change number of lines to display data
 
 ------------------------------------------------------------------------
 -- Global Localizations
@@ -97,7 +98,7 @@ local vTTable = {}
 		wipe(vTTable)
 
 		for j = 1, #vQCP_TotalDR do
-			if j < 21 then
+			if j < tonumber(NumberOfATTLines) then
 				tinsert(vTTable,
 					(vQCP_WHdr:GetChecked() and vQCP_TotalDR[j]["text"]:gsub("|cffff8000",""):gsub("|r","").." - " or "")..
 					((vQCP_TotalDR[j]["progress"] == 0 and vQCP_TotalDR[j]["total"] == 0) and string.format("%."..vQCP_HdrDec:GetNumber().."f","0") or string.format("%."..vQCP_HdrDec:GetNumber().."f",(vQCP_TotalDR[j]["progress"]/vQCP_TotalDR[j]["total"])*100))..
