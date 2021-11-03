@@ -7,7 +7,7 @@
 local ShowHide = false				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
 local AllXpacATTPercent = true		-- All Xpac w ATT % (true) else False for Normal Operations
-local NumberOfATTLines = 22			-- ATT Famously change number of lines to display data
+local NumberOfATTLines = 23			-- ATT loves to change number of rows of data on ATT Main Window
 
 ------------------------------------------------------------------------
 -- Global Localizations
