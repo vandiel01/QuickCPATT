@@ -3,11 +3,10 @@
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
---local ShowHide = true				-- Show (True)/Hide (False) All Times
 local ShowHide = false				-- Show (True)/Hide (False) All Times
 local DecimalDefault = 2			-- Decimal Precision Default is 2
 local AllXpacATTPercent = true		-- All Xpac w ATT % (true) else False for Normal Operations
-local NumberOfATTLines = 23			-- ATT loves to change number of rows of data on ATT Main Window
+local NumberOfATTLines = 25			-- ATT loves to change number of rows of data on ATT Main Window
 
 ------------------------------------------------------------------------
 -- Global Localizations
