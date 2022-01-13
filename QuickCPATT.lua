@@ -16,7 +16,7 @@ local vTTable = {}
 -- Horz/Vert Toggles
 ------------------------------------------------------------------------
 	function vQCP_Toggle(arg)
-		Status = xpcall(CheckATT(), err)
+	--	Status = xpcall(CheckATT(), err)
 		if arg ~= nil then
 			for i = 1, 2 do _G["vQCP_Opt"..i]:SetChecked(false) end
 			_G["vQCP_Opt"..arg]:SetChecked(true)
@@ -30,7 +30,7 @@ local vTTable = {}
 -- Single Expansion
 ------------------------------------------------------------------------
 	function DRListTog(arg)
-		Status = xpcall(CheckATT(), err)
+	--	Status = xpcall(CheckATT(), err)
 		for i = 1, 2 do _G["vQCP_AllHdr"..i]:SetChecked(false) end	
 		for i = 1, 9 do _G["vQCP_DRHdr"..i]:SetChecked(false) end
 		_G["vQCP_DRHdr"..arg]:SetChecked(true)
@@ -54,7 +54,7 @@ local vTTable = {}
 -- All Expansion
 ------------------------------------------------------------------------	
 	function AllListTog(arg)
-		Status = xpcall(CheckATT(), err)
+	--	Status = xpcall(CheckATT(), err)
 		for i = 1, 9 do _G["vQCP_DRHdr"..i]:SetChecked(false) end
 		for i = 1, 2 do _G["vQCP_AllHdr"..i]:SetChecked(false) end	
 		_G["vQCP_AllHdr"..arg]:SetChecked(true)
@@ -90,7 +90,7 @@ local vTTable = {}
 -- Main % List Only
 ------------------------------------------------------------------------	
 	function ATTMainList()
-		Status = xpcall(CheckATT(), err)
+	--	Status = xpcall(CheckATT(), err)
 		
 		vQCP_MainData = { AllTheThings.GetDataCache() }
 		vQCP_TotalDR = vQCP_MainData[1]["g"]
@@ -110,14 +110,14 @@ local vTTable = {}
 ------------------------------------------------------------------------
 -- Check Mode on ATT
 ------------------------------------------------------------------------
-	function CheckATT()
-		v = ""
-		if _G["AllTheThingsSettings"]["General"]["AccountMode"] then v = "Account" end
-		if _G["AllTheThingsSettings"]["General"]["Completionist"] then v = v.." Completionist" else v = v.." Unique" end
-		if _G["AllTheThingsSettings"]["General"]["DebugMode"] then v = "DEBUG" end
+	--function CheckATT()
+	--	v = ""
+	--	if _G["AllTheThingsSettings"]["General"]["AccountMode"] then v = "Account" end
+	--	if _G["AllTheThingsSettings"]["General"]["Completionist"] then v = v.." Completionist" else v = v.." Unique" end
+	--	if _G["AllTheThingsSettings"]["General"]["DebugMode"] then v = "DEBUG" end
 		
-		vQCP_WarnHeader.T:SetText("Heads up! You're on\n -- |cFFFFFF00 "..v.." |r --\nmode!")
-	end
+	--	vQCP_WarnHeader.T:SetText("Heads up! You're on\n -- |cFFFFFF00 "..v.." |r --\nmode!")
+	--end
 ------------------------------------------------------------------------
 -- Framing
 ------------------------------------------------------------------------
@@ -272,9 +272,9 @@ local vTTable = {}
 	--RIGHT SIDE
 	local vQCP_RightPane = CreateFrame("Frame", "vQCP_RightPane", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
 		vQCP_RightPane:SetBackdrop(BDropA)
-		vQCP_RightPane:SetSize(vQCP_Main:GetWidth()-145, vQCP_Main:GetHeight()-136)
+		vQCP_RightPane:SetSize(vQCP_Main:GetWidth()-145, vQCP_Main:GetHeight()-83)
 		vQCP_RightPane:ClearAllPoints()
-		vQCP_RightPane:SetPoint("TOPRIGHT", vQCP_Main, -2, -133)
+		vQCP_RightPane:SetPoint("TOPRIGHT", vQCP_Main, -2, -80)
 		local vQCP_RPScr = CreateFrame("ScrollFrame", "vQCP_RPScr", vQCP_RightPane, "UIPanelScrollFrameTemplate")
 			vQCP_RPScr:SetPoint("TOPLEFT", vQCP_RightPane, 7, -7)
 			vQCP_RPScr:SetWidth(vQCP_RightPane:GetWidth()-35)
@@ -288,15 +288,15 @@ local vTTable = {}
 				vQCP_RPArea:SetScript("OnEditFocusGained", function() vQCP_RPArea:HighlightText() end)
 			vQCP_RPScr:SetScrollChild(vQCP_RPArea)
 
-	local vQCP_WarnHeader = CreateFrame("Frame", "vQCP_WarnHeader", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
-		vQCP_WarnHeader:SetBackdrop(BDropB)
-		vQCP_WarnHeader:SetSize(vQCP_Main:GetWidth()-145, 55)
-		vQCP_WarnHeader:ClearAllPoints()
-		vQCP_WarnHeader:SetPoint("TOPRIGHT", vQCP_Main, -2, -80)
-			vQCP_WarnHeader.T = vQCP_WarnHeader:CreateFontString("T")
-			vQCP_WarnHeader.T:SetFont("Fonts\\FRIZQT__.TTF", 12)
-			vQCP_WarnHeader.T:SetPoint("CENTER", vQCP_WarnHeader, "CENTER", 0, 0)
-			vQCP_WarnHeader.T:SetText()
+	--local vQCP_WarnHeader = CreateFrame("Frame", "vQCP_WarnHeader", vQCP_Main, BackdropTemplateMixin and "BackdropTemplate")
+	--	vQCP_WarnHeader:SetBackdrop(BDropB)
+	--	vQCP_WarnHeader:SetSize(vQCP_Main:GetWidth()-145, 55)
+	--	vQCP_WarnHeader:ClearAllPoints()
+	--	vQCP_WarnHeader:SetPoint("TOPRIGHT", vQCP_Main, -2, -80)
+	--		vQCP_WarnHeader.T = vQCP_WarnHeader:CreateFontString("T")
+	--		vQCP_WarnHeader.T:SetFont("Fonts\\FRIZQT__.TTF", 12)
+	--		vQCP_WarnHeader.T:SetPoint("CENTER", vQCP_WarnHeader, "CENTER", 0, 0)
+	--		vQCP_WarnHeader.T:SetText()
 
 ------------------------------------------------------------------------
 -- Fire Up Events
@@ -328,5 +328,5 @@ local vTTable = {}
 			vQCP_OnUpdate:UnregisterEvent("PLAYER_LOGIN")
 		end
 	end)
-	Status = xpcall(CheckATT(), err)
+	--Status = xpcall(CheckATT(), err)
 	
