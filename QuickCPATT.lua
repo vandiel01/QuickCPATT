@@ -1,7 +1,7 @@
 -- Credit `ALL THE THINGS` to Crieve/Dylan
 -- This Addon will NOT save or write or anything to ATT, it only reads what's given.
-local vQuickCP_AppTitle = "|CFFFFFF00"..strsub(GetAddOnMetadata("QuickCP", "Title"),2).."|r v"..GetAddOnMetadata("QuickCP", "Version")
-local vQuickCP_AppNotes = GetAddOnMetadata("QuickCP", "Notes")
+local vQuickCP_AppTitle = "|CFFFFFF00"..strsub(GetAddOnMetadata("QuickCPATT", "Title"),2).."|r v"..GetAddOnMetadata("QuickCPATT", "Version")
+local vQuickCP_AppNotes = GetAddOnMetadata("QuickCPATT", "Notes")
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
