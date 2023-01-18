@@ -5,9 +5,10 @@ local vQuickCP_AppNotes = GetAddOnMetadata("QuickCPATT", "Notes")
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
-local vQuickCP_ShowHide = false		-- Show (true)/Hide (false) All Times
+local vQuickCP_ShowHide = true		-- Show (true)/Hide (false) All Times
 local vQuickCP_DecDef = 2			-- Decimal Precision Default is 2
 local vQuickCP_NbrOfATT = 18		-- ATT loves to change their Data/Rows
+local vQuickCP_NbrOfExpansion = 11	-- Number of Expansions (Including All)
 ------------------------------------------------------------------------
 -- Global Localizations
 ------------------------------------------------------------------------
@@ -28,14 +29,14 @@ function vQuickCP_ToggleSwitch(arg1,arg2)
 	end
 
 	if arg1 == 3 then -- Expansion Selections
-		for i = 1, 10 do _G["vQuickCP_DRList"..i]:SetChecked(false) end
+		for i = 1, vQuickCP_NbrOfExpansion do _G["vQuickCP_DRList"..i]:SetChecked(false) end
 		_G["vQuickCP_DRList"..arg2]:SetChecked(true)
 	end
 	
 	if ( vQuickCP_DRList1:GetChecked() ) then
 		vQuickCP_ATTDRAllExpansion()
 	else
-		for i = 1, 10 do
+		for i = 1, vQuickCP_NbrOfExpansion do
 			if _G["vQuickCP_DRList"..i]:GetChecked() then
 				vQuickCP_ATTDRSpecific(i-1)
 				break
@@ -49,7 +50,7 @@ end
 -- Pull Specific ATT: Main List or Expansion Dungeon/Raid List
 ------------------------------------------------------------------------
 	function vQuickCP_ATTList(arg)
-		for i = 1, 10 do _G["vQuickCP_DRList"..i]:SetChecked(false) end
+		for i = 1, vQuickCP_NbrOfExpansion do _G["vQuickCP_DRList"..i]:SetChecked(false) end
 		
 		vQuickCP_ResultArea:SetText("")
 		wipe(vQuickCP_Table)
@@ -310,7 +311,7 @@ end
 	-- Main Frame
 	local vQuickCP_Main = CreateFrame("Frame", "vQuickCP_Main", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 		vQuickCP_Main:SetBackdrop(BDropA)
-		vQuickCP_Main:SetSize(358, 335)
+		vQuickCP_Main:SetSize(358, 353)
 		vQuickCP_Main:ClearAllPoints()
 		vQuickCP_Main:SetPoint("CENTER", UIParent)
 		vQuickCP_Main:EnableMouse(true)
@@ -412,7 +413,7 @@ end
 		vQuickCP_PExp:SetPoint("TOPLEFT", vQuickCP_Main, 10, -135)
 		vQuickCP_PExp:SetText("|cffFFFF00Pick An Expansion|r")
 	-- Create A List using `Array`
-	local DRExp = { "|cffFFA500All Expansions|r", "Classic", "Burning Crusade", "Wrath of Lich King", "Cataclysm", "Mists of Pandaria", "Warlords of Draenor", "Legion", "Battle for Azeroth", "Shadowlands", }
+	local DRExp = { "|cffFFA500All Expansions|r", "Classic", "Burning Crusade", "Wrath of Lich King", "Cataclysm", "Mists of Pandaria", "Warlords of Draenor", "Legion", "Battle for Azeroth", "Shadowlands", "Dragonflight", }
 		DRHeight = -145
 		for i = 1, #DRExp do
 			local vQuickCP_DRList = CreateFrame("CheckButton", "vQuickCP_DRList"..i, vQuickCP_Main, "InterfaceOptionsCheckButtonTemplate")
@@ -429,7 +430,7 @@ end
 	--Result Box
 	local vQuickCP_Result = CreateFrame("Frame", "vQuickCP_Result", vQuickCP_Main, BackdropTemplateMixin and "BackdropTemplate")
 		vQuickCP_Result:SetBackdrop(BDropB)
-		vQuickCP_Result:SetSize(vQuickCP_Main:GetWidth()-139, vQuickCP_Main:GetHeight()-74)
+		vQuickCP_Result:SetSize(vQuickCP_Main:GetWidth()-139, vQuickCP_Main:GetHeight()-73)
 		vQuickCP_Result:ClearAllPoints()
 		vQuickCP_Result:SetPoint("TOPRIGHT", vQuickCP_Main, -2, -72)
 		local vQuickCP_ResultScroll = CreateFrame("ScrollFrame", "vQuickCP_ResultScroll", vQuickCP_Result, "UIPanelScrollFrameTemplate")
