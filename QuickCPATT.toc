@@ -1,5 +1,5 @@
 ## Author: Vandiel
-## Interface: 100002
+## Interface: 100005
 ## Name: QuickCPATT
 ## Title: .|TInterface\ICONS\Achievement_ScenarioChallenge_100:0|t Quick ATT Copy-Paste
 ## Version: 1.4

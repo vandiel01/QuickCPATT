@@ -5,9 +5,9 @@ local vQuickCP_AppNotes = GetAddOnMetadata("QuickCPATT", "Notes")
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
-local vQuickCP_ShowHide = true		-- Show (true)/Hide (false) All Times
+local vQuickCP_ShowHide = false		-- Show (true)/Hide (false) All Times
 local vQuickCP_DecDef = 2			-- Decimal Precision Default is 2
-local vQuickCP_NbrOfATT = 18		-- ATT loves to change their Data/Rows
+local vQuickCP_NbrOfATT = 19		-- ATT loves to change their Data/Rows
 local vQuickCP_NbrOfExpansion = 11	-- Number of Expansions (Including All)
 ------------------------------------------------------------------------
 -- Global Localizations
