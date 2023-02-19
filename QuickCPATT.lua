@@ -134,7 +134,7 @@ end
 					for c = 1, #vQuickCP_DData do
 						if ( vQuickCP_DData[c]["progress"] ~= 0 or vQuickCP_DData[c]["total"] ~= 0 ) then
 							if vQuickCP_DData[c]["text"] == nil then
-								vQuickCP_ResultArea:SetText("Please Wait!\n\nAllTheThings isn't responding on requested information...")
+								vQuickCP_ResultArea:SetText("Please Wait!\n\nAllTheThings is generating requested information...")
 								C_Timer.After(2, function() vQuickCP_ATTDRSpecific(arg) end)
 								return false
 							end
@@ -195,9 +195,6 @@ end
 				if ( vQuickCP_SData[b]["progress"] ~= 0 or vQuickCP_SData[b]["total"] ~= 0 ) then
 					SubHdr = vQuickCP_SData[b]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
 					
-					--Skip Legions/Common Dungeon Drop
-					--if ( DRHdr == "Legion" and SubHdr == "Common Dungeon Drop" ) then break end
-
 					-- print("=",b,SubHdr,DRHdr)
 					if ( DRHdr == "Cataclysm" and ( b == 1 and SubHdr ~= "World Bosses" ) ) then
 						--print("Yes, Match!")
@@ -208,22 +205,27 @@ end
 							( b > #vQuickCP_SData and "\n" or "" )
 						)
 					end
-					tinsert(vQuickCP_Table,
-						( b > 1 and "\n" or "" )..
-						( vQuickCP_LabelHeader:GetChecked() and "|cff4169e1"..SubHdr.."|r\t" or "" )..
-						( vQuickCP_Number1:GetChecked() and
-							( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[b]["progress"]/vQuickCP_SData[b]["total"])*100) ) or
-							( (vQuickCP_SData[b]["total"]-vQuickCP_SData[b]["progress"]) )
-						)..
-						( b > #vQuickCP_SData and "\n" or "" )
-					)
+					--Skip Legions/Common Dungeon Drop but print everything else
+					if ( DRHdr == "Legion" and SubHdr == "Common Dungeon Drop" ) then
+						-- Do Nothing
+					else
+						tinsert(vQuickCP_Table,
+							( b > 1 and "\n" or "" )..
+							( vQuickCP_LabelHeader:GetChecked() and "|cff4169e1"..SubHdr.."|r\t" or "" )..
+							( vQuickCP_Number1:GetChecked() and
+								( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[b]["progress"]/vQuickCP_SData[b]["total"])*100) ) or
+								( (vQuickCP_SData[b]["total"]-vQuickCP_SData[b]["progress"]) )
+							)..
+							( b > #vQuickCP_SData and "\n" or "" )
+						)
+					end
 					if ( vQuickCP_DRSubList2:GetChecked() ) then
 						local vQuickCP_DData = vQuickCP_AData[1]["g"][1]["g"][a]["g"][b]["g"]
 						Progress, Total = 0, 0
 						for c = 1, #vQuickCP_DData do
 							if ( vQuickCP_DData[c]["progress"] ~= 0 or vQuickCP_DData[c]["total"] ~= 0 ) then
 								if vQuickCP_DData[c]["text"] == nil then
-									vQuickCP_ResultArea:SetText("Please Wait!\n\nAllTheThings isn't responding on requested information...")
+									vQuickCP_ResultArea:SetText("Please Wait!\n\nAllTheThings is generating requested information...")
 									C_Timer.After(2, function() vQuickCP_ATTDRAllExpansion() end)
 									return false
 								end
