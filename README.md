@@ -5,11 +5,8 @@ You will need to create an Google Drive or Excel Spreadsheet or whatever you per
 
 No macro/script, Only Condition Formatting, link below:
 
-  Google Drive Sheet:
-  https://docs.google.com/spreadsheets/d/1pd97dA__8mBoFnTwWkAWd9lcICzDrcJJ5bGkwmTs_vk/edit?usp=sharing
-  
-  Excel Spreadsheet (2007):
-  https://docs.google.com/spreadsheets/d/1CVY_HsuXD0lwV4Bp5dqjZ99BHUYnJTmQ/edit?usp=share_link&ouid=113068518554098856243&rtpof=true&sd=true
+  Google Drive Sheet/Excel Spreadsheet (2007):
+  https://docs.google.com/spreadsheets/d/1XeFGgVr5rY4gTayFC1YDQ9Tk6PDfCwRh/edit?usp=share_link&ouid=113068518554098856243&rtpof=true&sd=true
 
 ## About Me
 I'm Vandiel, in ATT on Discord (Vandiel#2276) and on Korgath.  I'm by no means a expert programmer/coder, but like to learn and experiment things.  I'm always happy to have some insight and/or improvement to the code.
