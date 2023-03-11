@@ -14,6 +14,8 @@ local vQuickCP_NbrOfExpansion = 11	-- Number of Expansions (Including All)
 ------------------------------------------------------------------------
 local vQuickCP_Table = {}
 local ATT_Keyword = { "Looking For Raid", "Normal", "Heroic", "Mythic", "10 Player", "25 Player", "10 Player (Heroic)", "25 Player (Heroic)", }
+local ATTMainList = { "Dungeons & Raids", "Outdoor Zones", "World Drop", "Group Finder", "Achievements", "Expansion Features", "Holiday", "World Event", "Promotion", "Pet Battles", "PvP", "Crafted Item", "Professions", "Secrets", "Item Sets", "In-Game Shop", "Trading Post", "Black Market Auction House", "Factions", }
+local ATTDRList = { "Classic", "Burning Crusade", "Wrath of the Lich King", "Cataclysm", "Mists of Pandaria", "Warlords of Draenor", "Legion", "Battle for Azeroth", "Shadowlands", "Dragonflight", }
 ------------------------------------------------------------------------
 -- Check Toggles and Select Function
 ------------------------------------------------------------------------
@@ -56,11 +58,25 @@ end
 		wipe(vQuickCP_Table)
 		local vQuickCP_AData = { AllTheThings.GetDataCache() }
 		local vQuickCP_SData = ""
+		
 		if arg == 1 then vQuickCP_SData = vQuickCP_AData[1]["g"] end
 		if arg == 2 then vQuickCP_SData = vQuickCP_AData[1]["g"][1]["g"] end
 		
 		for a = 1, #vQuickCP_SData do
 			if ( a > tonumber(vQuickCP_NbrOfATT) and arg == 1 ) then break end
+			
+			if ( vQuickCP_SData[a]["progress"] == 0 or vQuickCP_SData[a]["total"] == 0 ) then
+				tinsert(vQuickCP_Table,
+					( a > 1 and "\n" or "" )..
+					(
+						vQuickCP_LabelHeader:GetChecked() and 
+						( arg == 1 and ATTMainList[a] or ATTDRList[a] ).."\t" or
+						""
+					)..
+					( "N/A" )..
+					( a > #vQuickCP_SData and "\n" or "" )
+				)
+			end
 			if ( vQuickCP_SData[a]["progress"] ~= 0 or vQuickCP_SData[a]["total"] ~= 0 ) then
 				tinsert(vQuickCP_Table,
 					( a > 1 and "\n" or "" )..
@@ -78,6 +94,87 @@ end
 				)
 			end
 		end
+		vQuickCP_ResultArea:SetText(table.concat(vQuickCP_Table,""))
+	end
+------------------------------------------------------------------------
+-- Pull ATT: Main List AND Expansion Dungeon/Raid List
+------------------------------------------------------------------------
+	function vQuickCP_ATTMDRList()
+		for i = 1, vQuickCP_NbrOfExpansion do _G["vQuickCP_DRList"..i]:SetChecked(false) end
+		
+		vQuickCP_ResultArea:SetText("")
+		wipe(vQuickCP_Table)
+		local vQuickCP_AData = { AllTheThings.GetDataCache() }
+		local vQuickCP_SData = ""
+
+		vQuickCP_SData = vQuickCP_AData[1]["g"]
+		for a = 1, #vQuickCP_SData do
+			if ( a > tonumber(vQuickCP_NbrOfATT) ) then break end
+			
+			if ( vQuickCP_SData[a]["progress"] == 0 or vQuickCP_SData[a]["total"] == 0 ) then
+				tinsert(vQuickCP_Table,
+					( a > 1 and "\n" or "" )..
+					(
+						vQuickCP_LabelHeader:GetChecked() and 
+						ATTMainList[a].."\t" or
+						""
+					)..
+					( "N/A" )..
+					( a > #vQuickCP_SData and "\n" or "" )
+				)
+			end
+			if ( vQuickCP_SData[a]["progress"] ~= 0 or vQuickCP_SData[a]["total"] ~= 0 ) then
+				tinsert(vQuickCP_Table,
+					( a > 1 and "\n" or "" )..
+					(
+						vQuickCP_LabelHeader:GetChecked() and
+						vQuickCP_SData[a]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","").."\t" or
+						""
+					)..
+					(
+						( vQuickCP_Number1:GetChecked() ) and
+						( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[a]["progress"]/vQuickCP_SData[a]["total"])*100) ) or
+						( (vQuickCP_SData[a]["total"]-vQuickCP_SData[a]["progress"]) )
+					)..
+					( a > #vQuickCP_SData and "\n" or "" )
+				)
+			end
+		end
+		tinsert(vQuickCP_Table,"\n\n")
+		
+		vQuickCP_SData = vQuickCP_AData[1]["g"][1]["g"]
+		for a = 1, #vQuickCP_SData do
+			if ( a > tonumber(vQuickCP_NbrOfATT) ) then break end
+			if ( vQuickCP_SData[a]["progress"] == 0 or vQuickCP_SData[a]["total"] == 0 ) then
+				tinsert(vQuickCP_Table,
+					( a > 1 and "\n" or "" )..
+					(
+						vQuickCP_LabelHeader:GetChecked() and 
+						ATTDRList[a].."\t" or
+						""
+					)..
+					( "N/A" )..
+					( a > #vQuickCP_SData and "\n" or "" )
+				)
+			end
+			if ( vQuickCP_SData[a]["progress"] ~= 0 or vQuickCP_SData[a]["total"] ~= 0 ) then
+				tinsert(vQuickCP_Table,
+					( a > 1 and "\n" or "" )..
+					(
+						vQuickCP_LabelHeader:GetChecked() and
+						vQuickCP_SData[a]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","").."\t" or
+						""
+					)..
+					(
+						( vQuickCP_Number1:GetChecked() ) and
+						( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[a]["progress"]/vQuickCP_SData[a]["total"])*100) ) or
+						( (vQuickCP_SData[a]["total"]-vQuickCP_SData[a]["progress"]) )
+					)..
+					( a > #vQuickCP_SData and "\n" or "" )
+				)
+			end
+		end
+		
 		vQuickCP_ResultArea:SetText(table.concat(vQuickCP_Table,""))
 	end
 ------------------------------------------------------------------------
@@ -369,16 +466,22 @@ end
 
 	-- ATT Main List % Only
 	local vQuickCP_MainList = CreateFrame("Button", "vQuickCP_MainList", vQuickCP_Main, "UIPanelButtonTemplate")
-		vQuickCP_MainList:SetSize(150,20)
-		vQuickCP_MainList:SetPoint("TOPLEFT", vQuickCP_Main, 20, -50)
-		vQuickCP_MainList:SetText("ATT Main List %")
+		vQuickCP_MainList:SetSize(110,20)
+		vQuickCP_MainList:SetPoint("TOPLEFT", vQuickCP_Main, 15, -50)
+		vQuickCP_MainList:SetText("Main List %")
 		vQuickCP_MainList:SetScript("OnClick", function() vQuickCP_ATTList(1) end)
 	-- D&R Main List Only
 	local vQuickCP_DRMainList = CreateFrame("Button", "vQuickCP_DRMainList", vQuickCP_Main, "UIPanelButtonTemplate")
-		vQuickCP_DRMainList:SetSize(150,20)
-		vQuickCP_DRMainList:SetPoint("TOPLEFT", vQuickCP_Main, 185, -50)
-		vQuickCP_DRMainList:SetText("ATT D&R Main List %")
+		vQuickCP_DRMainList:SetSize(110,20)
+		vQuickCP_DRMainList:SetPoint("TOPLEFT", vQuickCP_Main, 125, -50)
+		vQuickCP_DRMainList:SetText("D&R List %")
 		vQuickCP_DRMainList:SetScript("OnClick", function() vQuickCP_ATTList(2) end)
+	-- ATT Main & D&R Main List Only
+	local vQuickCP_BothMainList = CreateFrame("Button", "vQuickCP_BothMainList", vQuickCP_Main, "UIPanelButtonTemplate")
+		vQuickCP_BothMainList:SetSize(110,20)
+		vQuickCP_BothMainList:SetPoint("TOPLEFT", vQuickCP_Main, 235, -50)
+		vQuickCP_BothMainList:SetText("Both List %")
+		vQuickCP_BothMainList:SetScript("OnClick", function() vQuickCP_ATTMDRList() end)
 		
 	-- Seperator
 	local vQuickCP_Line2 = vQuickCP_Main:CreateTexture("vQuickCP_Line2")
