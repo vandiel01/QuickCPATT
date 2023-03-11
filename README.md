@@ -19,7 +19,7 @@ The use of [BugGrabber] https://www.curseforge.com/wow/addons/bug-grabber and [B
 You can also contribute to the addon by [Donate] https://paypal.me/Vandiel01
 
 ## How To Use
-/qcp or /quickcp to use `Quick Copy/Paste`
+/vqcp to use `Quick Copy/Paste` (or) click on icon on minimap
 
 ## Future Feature/Thoughts?
 -Any new reasonable ideas are welcome :)
