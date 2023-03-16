@@ -14,7 +14,9 @@ local vQuickCP_NbrOfExpansion = 11	-- Number of Expansions (Including All)
 ------------------------------------------------------------------------
 local vQuickCP_Table = {}
 local ATT_Keyword = { "Looking For Raid", "Normal", "Heroic", "Mythic", "10 Player", "25 Player", "10 Player (Heroic)", "25 Player (Heroic)", }
-local ATTMainList = { "Dungeons & Raids", "Outdoor Zones", "World Drop", "Group Finder", "Achievements", "Expansion Features", "Holiday", "World Event", "Promotion", "Pet Battles", "PvP", "Crafted Item", "Professions", "Secrets", "Item Sets", "In-Game Shop", "Trading Post", "Black Market Auction House", "Factions", }
+
+local ATTMainList = { "Dungeons & Raids", "Outdoor Zones", "World Drop", "Group Finder", "Achievements", "Expansion Features", "Holiday", "World Event", "Promotion", "Pet Battles", "PvP", "Crafted Item", "Professions", "Secrets", "Character", "In-Game Shop", "Trading Post", "Black Market Auction House", "Factions", }
+
 local ATTDRList = { "Classic", "Burning Crusade", "Wrath of the Lich King", "Cataclysm", "Mists of Pandaria", "Warlords of Draenor", "Legion", "Battle for Azeroth", "Shadowlands", "Dragonflight", }
 ------------------------------------------------------------------------
 -- Check Toggles and Select Function
@@ -106,8 +108,8 @@ end
 		wipe(vQuickCP_Table)
 		local vQuickCP_AData = { AllTheThings.GetDataCache() }
 		local vQuickCP_SData = ""
-
 		vQuickCP_SData = vQuickCP_AData[1]["g"]
+
 		for a = 1, #vQuickCP_SData do
 			if ( a > tonumber(vQuickCP_NbrOfATT) ) then break end
 			
@@ -140,11 +142,14 @@ end
 				)
 			end
 		end
+		
 		tinsert(vQuickCP_Table,"\n\n")
 		
 		vQuickCP_SData = vQuickCP_AData[1]["g"][1]["g"]
 		for a = 1, #vQuickCP_SData do
+		
 			if ( a > tonumber(vQuickCP_NbrOfATT) ) then break end
+			
 			if ( vQuickCP_SData[a]["progress"] == 0 or vQuickCP_SData[a]["total"] == 0 ) then
 				tinsert(vQuickCP_Table,
 					( a > 1 and "\n" or "" )..
