@@ -1,49 +1,101 @@
 -- Credit `ALL THE THINGS` to Crieve/Dylan
 -- This Addon will NOT save or write or anything to ATT, it only reads what's given.
-local vQuickCP_AppTitle = "|CFFFFFF00"..strsub(GetAddOnMetadata("QuickCPATT", "Title"),2).."|r v"..GetAddOnMetadata("QuickCPATT", "Version")
-local vQuickCP_AppNotes = GetAddOnMetadata("QuickCPATT", "Notes")
+local vCP_AppTitle = "|CFFFFFF00"..strsub(GetAddOnMetadata("QuickCPATT", "Title"),2).."|r v"..GetAddOnMetadata("QuickCPATT", "Version")
+local vCP_AppNotes = GetAddOnMetadata("QuickCPATT", "Notes")
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
-local vQuickCP_ShowHide = false		-- Show (true)/Hide (false) All Times
-local vQuickCP_DecDef = 2			-- Decimal Precision Default is 2
-local vQuickCP_NbrOfATT = 19		-- ATT loves to change their Data/Rows
-local vQuickCP_NbrOfExpansion = 11	-- Number of Expansions (Including All)
+local v_ShowHide = false		-- Show (true)/Hide (false) All Times
+local v_PrecDec = 2			-- Decimal Precision Default is 2
+local v_NbrOfLines = 19		-- ATT loves to change their Data/Rows
+--local v_NbrOfXPac = 11		-- Number of Expansions (Including All)
 ------------------------------------------------------------------------
 -- Global Localizations
 ------------------------------------------------------------------------
-local vQuickCP_Table = {}
-local ATT_Keyword = { "Looking For Raid", "Normal", "Heroic", "Mythic", "10 Player", "25 Player", "10 Player (Heroic)", "25 Player (Heroic)", }
-
-local ATTMainList = { "Dungeons & Raids", "Outdoor Zones", "World Drop", "Group Finder", "Achievements", "Expansion Features", "Holiday", "World Event", "Promotion", "Pet Battles", "PvP", "Crafted Item", "Professions", "Secrets", "Character", "In-Game Shop", "Trading Post", "Black Market Auction House", "Factions", }
-
-local ATTDRList = { "Classic", "Burning Crusade", "Wrath of the Lich King", "Cataclysm", "Mists of Pandaria", "Warlords of Draenor", "Legion", "Battle for Azeroth", "Shadowlands", "Dragonflight", }
+local _TData = {}
+local ATT_Keyword = {
+	"Memory of Scholomance",
+	"Tier 3 Sets",
+	"Looking For Raid",
+	"Looking For Raid / Normal / Heroic",
+	"Looking For Raid / Normal / Heroic / Mythic",
+	"Normal",
+	"Heroic",
+	"Mythic",
+	"Normal / Heroic",
+	"Normal / Heroic / Mythic",
+	"Heroic / Mythic",
+	"10 Player",
+	"10 Player (Heroic)",
+	"25 Player",
+	"25 Player (Heroic)",
+}
+local ATTMainList = {
+	"Dungeons & Raids",
+	"Outdoor Zones",
+	"World Drop",
+	"Group Finder",
+	"Achievements",
+	"Expansion Features",
+	"Holiday",
+	"World Event",
+	"Promotion",
+	"Pet Battles",
+	"PvP",
+	"Crafted Item",
+	"Professions",
+	"Secrets",
+	"Character",
+	"In-Game Shop",
+	"Trading Post",
+	"Black Market Auction House",
+	"Factions",
+}
+local ATTDRList = {
+	"All Expansion",
+	"Classic",
+	"Burning Crusade",
+	"Wrath of the Lich King",
+	"Cataclysm",
+	"Mists of Pandaria",
+	"Warlords of Draenor",
+	"Legion",
+	"Battle for Azeroth",
+	"Shadowlands",
+	"Dragonflight",
+}
 ------------------------------------------------------------------------
 -- Check Toggles and Select Function
 ------------------------------------------------------------------------
-function vQuickCP_ToggleSwitch(arg1,arg2)
-	if arg1 == 1 then -- Percent/Remaining
-		for i = 1, 2 do _G["vQuickCP_Number"..i]:SetChecked(false) end
-		_G["vQuickCP_Number"..arg2]:SetChecked(true)
-	end
-
-	if arg1 == 2 then -- Main/Sub or Main/Sub/Diff
-		for i = 1, 2 do _G["vQuickCP_DRSubList"..i]:SetChecked(false) end
-		_G["vQuickCP_DRSubList"..arg2]:SetChecked(true)
-	end
-
-	if arg1 == 3 then -- Expansion Selections
-		for i = 1, vQuickCP_NbrOfExpansion do _G["vQuickCP_DRList"..i]:SetChecked(false) end
-		_G["vQuickCP_DRList"..arg2]:SetChecked(true)
-	end
-	
-	if ( vQuickCP_DRList1:GetChecked() ) then
-		vQuickCP_ATTDRAllExpansion()
-	else
-		for i = 1, vQuickCP_NbrOfExpansion do
-			if _G["vQuickCP_DRList"..i]:GetChecked() then
-				vQuickCP_ATTDRSpecific(i-1)
+function vCP_ToggleSwitch(arg1,arg2)
+	if arg1 == 0 then -- Redo List if XPac is Selected?
+		for i = 1, #ATTDRList do
+			if _G["vCP_DRList"..i]:GetChecked() then
+				if i == 1 then vCP_ATTAllXPac() else vCP_ATTSpecXPac(i-1) end
 				break
+			end
+		end
+	end
+	if arg1 == 1 then -- Percent/Remaining
+		for i = 1, 2 do _G["vCP_Number"..i]:SetChecked(false) end
+		_G["vCP_Number"..arg2]:SetChecked(true)
+	end
+	if arg1 == 2 then -- Main/Sub or Main/Sub/Diff
+		for i = 1, 2 do _G["vCP_DRSubList"..i]:SetChecked(false) end
+		_G["vCP_DRSubList"..arg2]:SetChecked(true)
+	end
+	if arg1 == 3 then
+		-- Expansion Selections
+		for i = 1, #ATTDRList do _G["vCP_DRList"..i]:SetChecked(false) end
+		_G["vCP_DRList"..arg2]:SetChecked(true)
+		if vCP_DRList1:GetChecked() then
+			vCP_ATTAllXPac()
+		else
+			for i = 1, #ATTDRList do
+				if _G["vCP_DRList"..i]:GetChecked() then
+					vCP_ATTSpecXPac(i-1)
+					break
+				end
 			end
 		end
 	end
@@ -53,344 +105,323 @@ end
 ------------------------------------------------------------------------
 -- Pull Specific ATT: Main List or Expansion Dungeon/Raid List
 ------------------------------------------------------------------------
-	function vQuickCP_ATTList(arg)
-		for i = 1, vQuickCP_NbrOfExpansion do _G["vQuickCP_DRList"..i]:SetChecked(false) end
+	function vCP_ATTList(arg)
+		for i = 1, #ATTDRList do _G["vCP_DRList"..i]:SetChecked(false) end
 		
-		vQuickCP_ResultArea:SetText("")
-		wipe(vQuickCP_Table)
-		local vQuickCP_AData = { AllTheThings.GetDataCache() }
-		local vQuickCP_SData = ""
+		vCP_ResultArea:SetText("")
+		wipe(_TData)
+		local _AData = { AllTheThings.GetDataCache() }
+		local _SData = ""
 		
-		if arg == 1 then vQuickCP_SData = vQuickCP_AData[1]["g"] end
-		if arg == 2 then vQuickCP_SData = vQuickCP_AData[1]["g"][1]["g"] end
+		if arg == 1 then _SData = _AData[1]["g"] end
+		if arg == 2 then _SData = _AData[1]["g"][1]["g"] end
 		
-		for a = 1, #vQuickCP_SData do
-			if ( a > tonumber(vQuickCP_NbrOfATT) and arg == 1 ) then break end
+		for a = 1, #_SData do
+			if ( a > tonumber(v_NbrOfLines) and arg == 1 ) then break end
 			
-			if ( vQuickCP_SData[a]["progress"] == 0 or vQuickCP_SData[a]["total"] == 0 ) then
-				tinsert(vQuickCP_Table,
+			if ( _SData[a]["progress"] == 0 or _SData[a]["total"] == 0 ) then
+				tinsert(_TData,
 					( a > 1 and "\n" or "" )..
-					(
-						vQuickCP_LabelHeader:GetChecked() and 
-						( arg == 1 and ATTMainList[a] or ATTDRList[a] ).."\t" or
-						""
-					)..
+					( vCP_LblHdr:GetChecked() and ( arg == 1 and ATTMainList[a] or ATTDRList[a] ).."\t" or "" )..
 					( "N/A" )..
-					( a > #vQuickCP_SData and "\n" or "" )
+					( a > #_SData and "\n" or "" )
 				)
 			end
-			if ( vQuickCP_SData[a]["progress"] ~= 0 or vQuickCP_SData[a]["total"] ~= 0 ) then
-				tinsert(vQuickCP_Table,
+			if ( _SData[a]["progress"] ~= 0 or _SData[a]["total"] ~= 0 ) then
+				tinsert(_TData,
 					( a > 1 and "\n" or "" )..
 					(
-						vQuickCP_LabelHeader:GetChecked() and
-						vQuickCP_SData[a]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","").."\t" or
+						vCP_LblHdr:GetChecked() and
+						_SData[a]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","").."\t" or
 						""
 					)..
 					(
-						( vQuickCP_Number1:GetChecked() ) and
-						( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[a]["progress"]/vQuickCP_SData[a]["total"])*100) ) or
-						( (vQuickCP_SData[a]["total"]-vQuickCP_SData[a]["progress"]) )
+						( vCP_Number1:GetChecked() ) and
+						( string.format("%."..tonumber(v_PrecDec).."f",(_SData[a]["progress"]/_SData[a]["total"])*100) ) or
+						( (_SData[a]["total"]-_SData[a]["progress"]) )
 					)..
-					( a > #vQuickCP_SData and "\n" or "" )
+					( a > #_SData and "\n" or "" )
 				)
 			end
 		end
-		vQuickCP_ResultArea:SetText(table.concat(vQuickCP_Table,""))
+		vCP_ResultArea:SetText(table.concat(_TData,""))
 	end
 ------------------------------------------------------------------------
 -- Pull ATT: Main List AND Expansion Dungeon/Raid List
 ------------------------------------------------------------------------
-	function vQuickCP_ATTMDRList()
-		for i = 1, vQuickCP_NbrOfExpansion do _G["vQuickCP_DRList"..i]:SetChecked(false) end
+	function vCP_ATTMDRList()
+		for i = 1, #ATTDRList do _G["vCP_DRList"..i]:SetChecked(false) end
 		
-		vQuickCP_ResultArea:SetText("")
-		wipe(vQuickCP_Table)
-		local vQuickCP_AData = { AllTheThings.GetDataCache() }
-		local vQuickCP_SData = ""
-		vQuickCP_SData = vQuickCP_AData[1]["g"]
+		vCP_ResultArea:SetText("")
+		wipe(_TData)
+		local _AData = { AllTheThings.GetDataCache() }
+		local _SData = _AData[1]["g"]
 
-		for a = 1, #vQuickCP_SData do
-			if ( a > tonumber(vQuickCP_NbrOfATT) ) then break end
-			
-			if ( vQuickCP_SData[a]["progress"] == 0 or vQuickCP_SData[a]["total"] == 0 ) then
-				tinsert(vQuickCP_Table,
+		tinsert(_TData,_AData[1]["total"]-_AData[1]["progress"].."\n")
+		for a = 1, #_SData do
+			if ( a > tonumber(v_NbrOfLines) ) then break end
+			if ( _SData[a]["progress"] == 0 or _SData[a]["total"] == 0 ) then
+				tinsert(_TData,
 					( a > 1 and "\n" or "" )..
-					(
-						vQuickCP_LabelHeader:GetChecked() and 
-						ATTMainList[a].."\t" or
-						""
-					)..
+					( vCP_LblHdr:GetChecked() and ATTMainList[a].."\t" or "" )..
 					( "N/A" )..
-					( a > #vQuickCP_SData and "\n" or "" )
+					( a > #_SData and "\n" or "" )
 				)
 			end
-			if ( vQuickCP_SData[a]["progress"] ~= 0 or vQuickCP_SData[a]["total"] ~= 0 ) then
-				tinsert(vQuickCP_Table,
+			if ( _SData[a]["progress"] ~= 0 or _SData[a]["total"] ~= 0 ) then
+				tinsert(_TData,
 					( a > 1 and "\n" or "" )..
 					(
-						vQuickCP_LabelHeader:GetChecked() and
-						vQuickCP_SData[a]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","").."\t" or
+						vCP_LblHdr:GetChecked() and
+						_SData[a]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","").."\t" or
 						""
 					)..
 					(
-						( vQuickCP_Number1:GetChecked() ) and
-						( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[a]["progress"]/vQuickCP_SData[a]["total"])*100) ) or
-						( (vQuickCP_SData[a]["total"]-vQuickCP_SData[a]["progress"]) )
+						( vCP_Number1:GetChecked() ) and
+						( string.format("%."..tonumber(v_PrecDec).."f",(_SData[a]["progress"]/_SData[a]["total"])*100) ) or
+						( (_SData[a]["total"]-_SData[a]["progress"]) )
 					)..
-					( a > #vQuickCP_SData and "\n" or "" )
+					( a > #_SData and "\n" or "" )
 				)
 			end
 		end
-		
-		tinsert(vQuickCP_Table,"\n\n")
-		
-		vQuickCP_SData = vQuickCP_AData[1]["g"][1]["g"]
-		for a = 1, #vQuickCP_SData do
-		
-			if ( a > tonumber(vQuickCP_NbrOfATT) ) then break end
-			
-			if ( vQuickCP_SData[a]["progress"] == 0 or vQuickCP_SData[a]["total"] == 0 ) then
-				tinsert(vQuickCP_Table,
+		tinsert(_TData,"\n\n")
+		_SData = _AData[1]["g"][1]["g"]
+		for a = 1, #_SData do
+			if ( a > tonumber(v_NbrOfLines) ) then break end
+			if ( _SData[a]["progress"] == 0 or _SData[a]["total"] == 0 ) then
+				tinsert(_TData,
 					( a > 1 and "\n" or "" )..
-					(
-						vQuickCP_LabelHeader:GetChecked() and 
-						ATTDRList[a].."\t" or
-						""
-					)..
+					( vCP_LblHdr:GetChecked() and ATTDRList[a].."\t" or "" )..
 					( "N/A" )..
-					( a > #vQuickCP_SData and "\n" or "" )
+					( a > #_SData and "\n" or "" )
 				)
 			end
-			if ( vQuickCP_SData[a]["progress"] ~= 0 or vQuickCP_SData[a]["total"] ~= 0 ) then
-				tinsert(vQuickCP_Table,
+			if ( _SData[a]["progress"] ~= 0 or _SData[a]["total"] ~= 0 ) then
+				tinsert(_TData,
 					( a > 1 and "\n" or "" )..
 					(
-						vQuickCP_LabelHeader:GetChecked() and
-						vQuickCP_SData[a]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","").."\t" or
+						vCP_LblHdr:GetChecked() and
+						_SData[a]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","").."\t" or
 						""
 					)..
 					(
-						( vQuickCP_Number1:GetChecked() ) and
-						( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[a]["progress"]/vQuickCP_SData[a]["total"])*100) ) or
-						( (vQuickCP_SData[a]["total"]-vQuickCP_SData[a]["progress"]) )
+						( vCP_Number1:GetChecked() ) and
+						( string.format("%."..tonumber(v_PrecDec).."f",(_SData[a]["progress"]/_SData[a]["total"])*100) ) or
+						( (_SData[a]["total"]-_SData[a]["progress"]) )
 					)..
-					( a > #vQuickCP_SData and "\n" or "" )
+					( a > #_SData and "\n" or "" )
 				)
 			end
 		end
-		
-		vQuickCP_ResultArea:SetText(table.concat(vQuickCP_Table,""))
+		vCP_ResultArea:SetText(table.concat(_TData,""))
 	end
 ------------------------------------------------------------------------
 -- Pull Specific Dungeon & Raid
 ------------------------------------------------------------------------
-	function vQuickCP_ATTDRSpecific(arg)
-		vQuickCP_ResultArea:SetText("")
-		wipe(vQuickCP_Table)
-		local DRHdr, SubHdr, DiffHdr = "", "", ""
-		local Progress, Total = 0, 0
-		local ATTKW = false
-		local vQuickCP_AData = { AllTheThings.GetDataCache() }
-		local vQuickCP_HData = vQuickCP_AData[1]["g"][1]["g"][arg]
-		local vQuickCP_SData = vQuickCP_AData[1]["g"][1]["g"][arg]["g"]
+function vCP_ATTSpecXPac(arg)
+	vCP_ResultArea:SetText("")
+	wipe(_TData)
+	local _MDR_H, _SDR_H, _DDR_H, Progress, Total, ATTKW = "", "", "", 0, 0, false
+	local _AData = { AllTheThings.GetDataCache() }
+	local _MData = _AData[1]["g"][1]["g"][arg]
 
-		DRHdr = vQuickCP_HData["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
-		tinsert(vQuickCP_Table,
-			( vQuickCP_LabelHeader:GetChecked() and "|cffFFA500"..DRHdr.."|r\t" or "" )..
-			( vQuickCP_Number1:GetChecked() and
-				( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_HData["progress"]/vQuickCP_HData["total"])*100) ) or
-				( (vQuickCP_HData["total"]-vQuickCP_HData["progress"]) )
-			)..
-			( arg == 1 and "" or "\n" )
-		)
-		for b = 1, #vQuickCP_SData do
-			if ( vQuickCP_SData[b]["progress"] ~= 0 or vQuickCP_SData[b]["total"] ~= 0 ) then
-				SubHdr = vQuickCP_SData[b]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
+	-- Expansion Header
+	_MDR_H = _MData["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
+	tinsert(_TData,
+		( vCP_LblHdr:GetChecked() and "|cff03A9F4".._MDR_H.."|r\t" or "" )..
+		( vCP_Number1:GetChecked() and
+			( string.format("%."..tonumber(v_PrecDec).."f",(_MData["progress"]/_MData["total"])*100) ) or
+			( (_MData["total"]-_MData["progress"]) )
+		)..
+		( arg == 1 and "" or "\n" )
+	)
+	
+	local _SData = _MData["g"]
+	for b = 1, #_SData do
+		if ( _SData[b]["progress"] ~= 0 or _SData[b]["total"] ~= 0 ) then
+			_SDR_H = _SData[b]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
 
-				--Skip Legions/Common Dungeon Drop
-				--if ( DRHdr == "Legion" and SubHdr == "Common Dungeon Drop" ) then break end
-
-				-- print("=",b,SubHdr,DRHdr)
-				if ( DRHdr == "Cataclysm" and ( b == 1 and SubHdr ~= "World Bosses" ) ) then
-					--print("Yes, Match!")
-					tinsert(vQuickCP_Table,
-						( b > 1 and "\n" or "" )..
-						( vQuickCP_LabelHeader:GetChecked() and "|cff4169e1World Bosses|r\t" or "" )..
-						( vQuickCP_Number1:GetChecked() and "--" or "" )..
-						( b > #vQuickCP_SData and "\n" or "" )
-					)
-				end
-				tinsert(vQuickCP_Table,
+			--Exceptions
+			if ( _MDR_H == "Legion" and _SDR_H == "Common Dungeon Drop" ) then --Do Nothing
+			else
+				tinsert(_TData,
 					( b > 1 and "\n" or "" )..
-					( vQuickCP_LabelHeader:GetChecked() and "|cff4169e1"..SubHdr.."|r\t" or "" )..
-					( vQuickCP_Number1:GetChecked() and
-						( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[b]["progress"]/vQuickCP_SData[b]["total"])*100) ) or
-						( (vQuickCP_SData[b]["total"]-vQuickCP_SData[b]["progress"]) )
+					( vCP_LblHdr:GetChecked() and ("|cff"..( _SData[b]["isRaid"] and "FF5722" or "FFEB3B" ).._SDR_H.."|r\t") or "" )..
+					( vCP_Number1:GetChecked() and
+						( string.format("%."..tonumber(v_PrecDec).."f",(_SData[b]["progress"]/_SData[b]["total"])*100) ) or
+						( (_SData[b]["total"]-_SData[b]["progress"]) )
 					)..
-					( b > #vQuickCP_SData and "\n" or "" )
+					( b > #_SData and "\n" or "" )
 				)
-				if ( vQuickCP_DRSubList2:GetChecked() ) then
-					local vQuickCP_DData = vQuickCP_AData[1]["g"][1]["g"][arg]["g"][b]["g"]
-					Progress, Total = 0, 0
-					for c = 1, #vQuickCP_DData do
-						if ( vQuickCP_DData[c]["progress"] ~= 0 or vQuickCP_DData[c]["total"] ~= 0 ) then
-							if vQuickCP_DData[c]["text"] == nil then
-								vQuickCP_ResultArea:SetText("Please Wait!\n\nAllTheThings is generating requested information...")
-								C_Timer.After(2, function() vQuickCP_ATTDRSpecific(arg) end)
-								return false
-							end
-							DiffHdr = vQuickCP_DData[c]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
-							-- print(#vQuickCP_DData,SubHdr,DiffHdr)
-							for _, v in ipairs(ATT_Keyword) do
-								if v == DiffHdr then
+			end
+			
+			if ( vCP_DRSubList2:GetChecked() ) then
+				local _DData = _AData[1]["g"][1]["g"][arg]["g"][b]["g"]
+				Progress, Total = 0, 0
+				for c = 1, #_DData do
+					if ( _DData[c]["progress"] ~= 0 or _DData[c]["total"] ~= 0 ) then
+						if _DData[c]["text"] == nil then
+							vCP_ResultArea:SetText("Please Wait!\n\nAllTheThings is generating information...")
+							C_Timer.After(.5, function() vCP_ATTSpecXPac(arg) end)
+							return false
+						end
+							_DDR_H = _DData[c]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
+							for k = 1, #ATT_Keyword do
+								if ATT_Keyword[k] == _DDR_H then
 									ATTKW = true
+									kc = k
 									break
 								end
 							end
-							if ( ATTKW ) then
-								tinsert(vQuickCP_Table,
-									( c > 0 and "\n" or "" )..
-									( vQuickCP_LabelHeader:GetChecked() and DiffHdr.."\t" or "" )..
-									( vQuickCP_Number1:GetChecked() and
-										( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_DData[c]["progress"]/vQuickCP_DData[c]["total"])*100) ) or
-										( (vQuickCP_DData[c]["total"]-vQuickCP_DData[c]["progress"]) )
-									)
+							_DDR_H = _DDR_H:gsub("Looking For Raid ","LFR ")
+							--Exceptions
+							if ( _MDR_H == "Legion" and _SDR_H == "The Nighthold" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
+							if ( _MDR_H == "Legion" and _SDR_H == "Antorus, the Burning Throne" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
+							if ( _MDR_H == "Legion" and _SDR_H == "Neltharion's Lair" and _DDR_H == "Mythic+" ) then ATTKW = false end
+							if ( _MDR_H == "Battle for Azeroth" and _SDR_H == "Ny'alotha, the Waking City" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
+							if ( _MDR_H == "Battle for Azeroth" and _SDR_H == "The Underrot" and _DDR_H == "Mythic+" ) then ATTKW = false end
+
+						if ( ATTKW ) then
+							tinsert(_TData,
+								( c > 0 and "\n" or "" )..
+								( vCP_LblHdr:GetChecked() and ( "|cffCFD8DC".._DDR_H.."|r\t" ) or "" )..
+								( vCP_Number1:GetChecked() and
+									( string.format("%."..tonumber(v_PrecDec).."f",(_DData[c]["progress"]/_DData[c]["total"])*100) ) or
+									( (_DData[c]["total"]-_DData[c]["progress"]) )
 								)
-							end
+							)
 						end
-						ATTKW = false
 					end
+					ATTKW = false
 				end
 			end
 		end
-		vQuickCP_ResultArea:SetText(table.concat(vQuickCP_Table,""))
 	end
+	vCP_ResultArea:SetText(table.concat(_TData,""))
+end
 ------------------------------------------------------------------------
 -- All Expansion
 ------------------------------------------------------------------------
-	function vQuickCP_ATTDRAllExpansion()
-		vQuickCP_ResultArea:SetText("")
-		wipe(vQuickCP_Table)
-		local DRHdr, SubHdr, DiffHdr = "", "", ""
-		local Progress, Total = 0, 0
-		local ATTKW = false
-		local vQuickCP_AData = { AllTheThings.GetDataCache() }
-		local vQuickCP_MData = vQuickCP_AData[1]["g"][1]["g"]
+function vCP_ATTAllXPac()
+	vCP_ResultArea:SetText("")
+	wipe(_TData)
+	local _MDR_H, _SDR_H, _DDR_H, Progress, Total, ATTKW = "", "", "", 0, 0, false
+	local _AData = { AllTheThings.GetDataCache() }
+	local _MData = _AData[1]["g"][1]["g"]
 
-		tinsert(vQuickCP_Table,"\n")
-		
-		for a = 1, #vQuickCP_MData do
-			local vQuickCP_HData = vQuickCP_AData[1]["g"][1]["g"][a]
-			local vQuickCP_SData = vQuickCP_AData[1]["g"][1]["g"][a]["g"]
-			
-			DRHdr = vQuickCP_HData["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
-			tinsert(vQuickCP_Table,
-				( vQuickCP_LabelHeader:GetChecked() and "|cffFFA500"..DRHdr.."|r\t" or "" )..
-				( vQuickCP_Number1:GetChecked() and
-					( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_HData["progress"]/vQuickCP_HData["total"])*100) ) or
-					( (vQuickCP_HData["total"]-vQuickCP_HData["progress"]) )
-				)..
-				( a == 1 and "" or "\n" )
-			)
-			for b = 1, #vQuickCP_SData do
-				if ( vQuickCP_SData[b]["progress"] ~= 0 or vQuickCP_SData[b]["total"] ~= 0 ) then
-					SubHdr = vQuickCP_SData[b]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
-					
-					-- print("=",b,SubHdr,DRHdr)
-					if ( DRHdr == "Cataclysm" and ( b == 1 and SubHdr ~= "World Bosses" ) ) then
-						--print("Yes, Match!")
-						tinsert(vQuickCP_Table,
-							( b > 1 and "\n" or "" )..
-							( vQuickCP_LabelHeader:GetChecked() and "|cff4169e1World Bosses|r\t" or "" )..
-							( vQuickCP_Number1:GetChecked() and "--" or "" )..
-							( b > #vQuickCP_SData and "\n" or "" )
-						)
-					end
-					--Skip Legions/Common Dungeon Drop but print everything else
-					if ( DRHdr == "Legion" and SubHdr == "Common Dungeon Drop" ) then
-						-- Do Nothing
-					else
-						tinsert(vQuickCP_Table,
-							( b > 1 and "\n" or "" )..
-							( vQuickCP_LabelHeader:GetChecked() and "|cff4169e1"..SubHdr.."|r\t" or "" )..
-							( vQuickCP_Number1:GetChecked() and
-								( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_SData[b]["progress"]/vQuickCP_SData[b]["total"])*100) ) or
-								( (vQuickCP_SData[b]["total"]-vQuickCP_SData[b]["progress"]) )
-							)..
-							( b > #vQuickCP_SData and "\n" or "" )
-						)
-					end
-					if ( vQuickCP_DRSubList2:GetChecked() ) then
-						local vQuickCP_DData = vQuickCP_AData[1]["g"][1]["g"][a]["g"][b]["g"]
-						Progress, Total = 0, 0
-						for c = 1, #vQuickCP_DData do
-							if ( vQuickCP_DData[c]["progress"] ~= 0 or vQuickCP_DData[c]["total"] ~= 0 ) then
-								if vQuickCP_DData[c]["text"] == nil then
-									vQuickCP_ResultArea:SetText("Please Wait!\n\nAllTheThings is generating requested information...")
-									C_Timer.After(2, function() vQuickCP_ATTDRAllExpansion() end)
-									return false
-								end
-								DiffHdr = vQuickCP_DData[c]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
-								-- print(#vQuickCP_DData,SubHdr,DiffHdr)
-								for _, v in ipairs(ATT_Keyword) do
-									if v == DiffHdr then
-										ATTKW = true
-										break
-									end
-								end
-								if ( ATTKW ) then
-									tinsert(vQuickCP_Table,
-										( c > 0 and "\n" or "" )..
-										( vQuickCP_LabelHeader:GetChecked() and DiffHdr.."\t" or "" )..
-										( vQuickCP_Number1:GetChecked() and
-											( string.format("%."..tonumber(vQuickCP_DecDef).."f",(vQuickCP_DData[c]["progress"]/vQuickCP_DData[c]["total"])*100) ) or
-											( (vQuickCP_DData[c]["total"]-vQuickCP_DData[c]["progress"]) )
-										)
-									)
+	tinsert(_TData,_AData[1]["g"][1]["total"]-_AData[1]["g"][1]["progress"].."\n")
+	
+	-- Expansion Header
+	for a = 1, #_MData do
+		local _HData = _MData[a]
+		_MDR_H = _HData["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
+		tinsert(_TData,
+			( vCP_LblHdr:GetChecked() and "|cff03A9F4".._MDR_H.."|r\t" or "" )..
+			( vCP_Number1:GetChecked() and
+				( string.format("%."..tonumber(v_PrecDec).."f",(_HData["progress"]/_HData["total"])*100) ) or
+				( (_HData["total"]-_HData["progress"]) )
+			)..
+			( a == 1 and "" or "\n" )
+		)
+		-- Achievements, World Boss, Raid, Dungeon Header
+		local _SData = _MData[a]["g"]
+		for b = 1, #_SData do
+			if ( _SData[b]["progress"] ~= 0 or _SData[b]["total"] ~= 0 ) then
+				_SDR_H = _SData[b]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
+				
+				--Exceptions
+				if ( _MDR_H == "Legion" and _SDR_H == "Common Dungeon Drop" ) then --Do Nothing
+				else
+					tinsert(_TData,
+						( b > 1 and "\n" or "" )..
+						( vCP_LblHdr:GetChecked() and ("|cff"..( _SData[b]["isRaid"] and "FF5722" or "FFEB3B" ).._SDR_H.."|r\t") or "" )..
+						( vCP_Number1:GetChecked() and
+							( string.format("%."..tonumber(v_PrecDec).."f",(_SData[b]["progress"]/_SData[b]["total"])*100) ) or
+							( (_SData[b]["total"]-_SData[b]["progress"]) )
+						)..
+						( b > #_SData and "\n" or "" )
+					)
+				end
+				-- Sub-Header of Normal, Heroic, Mythic, LFR, etc
+				if ( vCP_DRSubList2:GetChecked() ) then
+					local _DData = _MData[a]["g"][b]["g"]
+					for c = 1, #_DData do
+						if ( _DData[c]["progress"] ~= 0 or _DData[c]["total"] ~= 0 ) then
+							if _DData[c]["text"] == nil then
+								vCP_ResultArea:SetText("Please Wait!\n\nAllTheThings is generating information...")
+								C_Timer.After(.5, function() vCP_ATTAllXPac() end)
+								return false
+							end
+							_DDR_H = _DData[c]["text"]:gsub("%[([^]]*)%]","%1",1):gsub("|cff"..("%w"):rep(6),""):gsub("|r","")
+							for k = 1, #ATT_Keyword do
+								if ATT_Keyword[k] == _DDR_H then
+									ATTKW = true
+									kc = k
+									break
 								end
 							end
-							ATTKW = false
-						end
-					end
-				end
-			end
-			tinsert(vQuickCP_Table,( a == #vQuickCP_MData and "" or "\n" ))
-		end
-		vQuickCP_ResultArea:SetText(table.concat(vQuickCP_Table,""))
+							_DDR_H = _DDR_H:gsub("Looking For Raid ","LFR ")
+							--Exceptions
+							if ( _MDR_H == "Legion" and _SDR_H == "The Nighthold" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
+							if ( _MDR_H == "Legion" and _SDR_H == "Antorus, the Burning Throne" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
+							if ( _MDR_H == "Legion" and _SDR_H == "Neltharion's Lair" and _DDR_H == "Mythic+" ) then ATTKW = false end
+							if ( _MDR_H == "Battle for Azeroth" and _SDR_H == "Ny'alotha, the Waking City" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
+							if ( _MDR_H == "Battle for Azeroth" and _SDR_H == "The Underrot" and _DDR_H == "Mythic+" ) then ATTKW = false end
+							
+							if ( ATTKW ) then
+								tinsert(_TData,
+									( c > 0 and "\n" or "" )..
+									( vCP_LblHdr:GetChecked() and ( "|cffCFD8DC".._DDR_H.."|r\t" ) or "" )..
+									( vCP_Number1:GetChecked() and
+										( string.format("%."..tonumber(v_PrecDec).."f",(_DData[c]["progress"]/_DData[c]["total"])*100) ) or
+										( (_DData[c]["total"]-_DData[c]["progress"]) )
+									)
+								)
+							end -- if ATTKW
+							--if _MainDR_H == "Legion" then print(c,_MainDR_H,_SubDR_H,_DDR_H) end
+						end -- _DData not 0
+						ATTKW = false
+					end -- for c _DData
+				end -- vCP_DRSubList2 Checked
+			end -- _SData Not 0
+		end -- for B _SData
+		tinsert(_TData,( a == #_MData and "" or "\n" ))
 	end
+	vCP_ResultArea:SetText(table.concat(_TData,""))
+end
 ------------------------------------------------------------------------
 -- Game ToolTip Simplified
 ------------------------------------------------------------------------
-function vQuickCP_ToolTipsOnly(vArg)
+function vCP_ToolTipsOnly(vArg)
 	GameTooltip:ClearLines()
 	GameTooltip:Hide()
 	if vArg == 0 then return end
 	
-	if vQuickCP_Main:GetCenter() > (UIParent:GetWidth() / 2) then
+	if vCP_Main:GetCenter() > (UIParent:GetWidth() / 2) then
 		GameTooltip:SetOwner(vArg, "ANCHOR_LEFT")
 	else
 		GameTooltip:SetOwner(vArg, "ANCHOR_RIGHT")
 	end
 	
-	if vArg == vQuickCP_MiniMap then vArg = vQuickCP_AppTitle.."\n\n"..vQuickCP_AppNotes end
+	if vArg == vCP_MiniMap then vArg = vCP_AppTitle.."\n\n"..vCP_AppNotes end
 	GameTooltip:AddLine(vArg,1,1,1,1)
 	GameTooltip:Show()
 end
 ------------------------------------------------------------------------
 -- Mini Map Button
 ------------------------------------------------------------------------
-	local vQuickCP_MiniMap = CreateFrame("Button", "vQuickCP_MiniMap", Minimap)
-		vQuickCP_MiniMap:SetSize(40, 40)
-		vQuickCP_MiniMap:SetNormalTexture("Interface\\Store\\category-icon-services")
-		vQuickCP_MiniMap:ClearAllPoints()
-		vQuickCP_MiniMap:SetPoint("BOTTOMLEFT", Minimap, "BOTTOMLEFT", -25, 5)
-		vQuickCP_MiniMap:SetMovable(false)
-		vQuickCP_MiniMap:SetScript("OnClick", function()
-			if vQuickCP_Main:IsVisible() then vQuickCP_Main:Hide() else vQuickCP_Main:Show() end
+	local vCP_MiniMap = CreateFrame("Button", "vCP_MiniMap", Minimap)
+		vCP_MiniMap:SetSize(40, 40)
+		vCP_MiniMap:SetNormalTexture("Interface\\Store\\category-icon-services")
+		vCP_MiniMap:ClearAllPoints()
+		vCP_MiniMap:SetPoint("BOTTOMLEFT", Minimap, "BOTTOMLEFT", -25, 5)
+		vCP_MiniMap:SetMovable(false)
+		vCP_MiniMap:SetScript("OnClick", function()
+			if vCP_Main:IsVisible() then vCP_Main:Hide() else vCP_Main:Show() end
 		end)
-		vQuickCP_MiniMap:SetScript("OnEnter", function() vQuickCP_ToolTipsOnly(vQuickCP_MiniMap) end)
-		vQuickCP_MiniMap:SetScript("OnLeave", function() vQuickCP_ToolTipsOnly(0) end)
+		vCP_MiniMap:SetScript("OnEnter", function() vCP_ToolTipsOnly(vCP_MiniMap) end)
+		vCP_MiniMap:SetScript("OnLeave", function() vCP_ToolTipsOnly(0) end)
 ------------------------------------------------------------------------
 -- Framing
 ------------------------------------------------------------------------
@@ -413,169 +444,168 @@ end
 -- Rest of the Frames
 ------------------------------------------------------------------------
 	-- Main Frame
-	local vQuickCP_Main = CreateFrame("Frame", "vQuickCP_Main", UIParent, BackdropTemplateMixin and "BackdropTemplate")
-		vQuickCP_Main:SetBackdrop(BDropA)
-		vQuickCP_Main:SetSize(358, 353)
-		vQuickCP_Main:ClearAllPoints()
-		vQuickCP_Main:SetPoint("CENTER", UIParent)
-		vQuickCP_Main:EnableMouse(true)
-		vQuickCP_Main:SetMovable(true)
-		vQuickCP_Main:RegisterForDrag("LeftButton")
-		vQuickCP_Main:SetScript("OnDragStart", function() vQuickCP_Main:StartMoving() end)
-		vQuickCP_Main:SetScript("OnDragStop", function() vQuickCP_Main:StopMovingOrSizing() end)
-		vQuickCP_Main:SetClampedToScreen(true)
-		if not vQuickCP_ShowHide then vQuickCP_Main:Hide() end
+	local vCP_Main = CreateFrame("Frame", "vCP_Main", UIParent, BackdropTemplateMixin and "BackdropTemplate")
+		vCP_Main:SetBackdrop(BDropA)
+		vCP_Main:SetSize(358, 353)
+		vCP_Main:ClearAllPoints()
+		vCP_Main:SetPoint("CENTER", UIParent)
+		vCP_Main:EnableMouse(true)
+		vCP_Main:SetMovable(true)
+		vCP_Main:RegisterForDrag("LeftButton")
+		vCP_Main:SetScript("OnDragStart", function() vCP_Main:StartMoving() end)
+		vCP_Main:SetScript("OnDragStop", function() vCP_Main:StopMovingOrSizing() end)
+		vCP_Main:SetClampedToScreen(true)
+		if not v_ShowHide then vCP_Main:Hide() end
 	--Title
-	local vQuickCP_Title = vQuickCP_Main:CreateFontString(nil, "ARTWORK", "GameFontNormalLeftYellow")
-		vQuickCP_Title:SetPoint("TOP", vQuickCP_Main, 0, -8)
-		vQuickCP_Title:SetText("Quick Copy from ATT`s D&R Data")
+	local vCP_Title = vCP_Main:CreateFontString(nil, "ARTWORK", "GameFontNormalLeftYellow")
+		vCP_Title:SetPoint("TOP", vCP_Main, 0, -8)
+		vCP_Title:SetText("Quick Copy from ATT`s D&R Data")
 	-- Close Button
-	local vQuickCP_CloseButton = CreateFrame("Button", "vQuickCP_CloseButton", vQuickCP_Main, "UIPanelCloseButton")
-		vQuickCP_CloseButton:SetSize(22, 22)
-		vQuickCP_CloseButton:SetPoint("TOPRIGHT", vQuickCP_Main, -3, -3)
-		vQuickCP_CloseButton:SetScript("OnClick", function() vQuickCP_Main:Hide() end)
+	local vCP_CloseButton = CreateFrame("Button", "vCP_CloseButton", vCP_Main, "UIPanelCloseButton")
+		vCP_CloseButton:SetSize(22, 22)
+		vCP_CloseButton:SetPoint("TOPRIGHT", vCP_Main, -3, -3)
+		vCP_CloseButton:SetScript("OnClick", function() vCP_Main:Hide() end)
 	
 	--Seperator
-	local vQuickCP_Line1 = vQuickCP_Main:CreateTexture("vQuickCP_Line1")
-		vQuickCP_Line1:SetSize(vQuickCP_Main:GetWidth()-16, 2)
-		vQuickCP_Line1:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-		vQuickCP_Line1:SetColorTexture(.8, .8, .8, .2)
-		vQuickCP_Line1:SetPoint("TOPLEFT",vQuickCP_Main, 8, -25)
+	local vCP_Line1 = vCP_Main:CreateTexture("vCP_Line1")
+		vCP_Line1:SetSize(vCP_Main:GetWidth()-16, 2)
+		vCP_Line1:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+		vCP_Line1:SetColorTexture(.8, .8, .8, .2)
+		vCP_Line1:SetPoint("TOPLEFT",vCP_Main, 8, -25)
 
 	-- Include Header/Label/Title
-	local vQuickCP_LabelHeader = CreateFrame("CheckButton", "vQuickCP_LabelHeader", vQuickCP_Main, "InterfaceOptionsCheckButtonTemplate")
-		vQuickCP_LabelHeader:SetPoint("TOPLEFT", vQuickCP_Main, 5, -27)
-		vQuickCP_LabelHeader:SetChecked(false)
-		vQuickCP_LabelHeader:SetScript("OnClick", function() vQuickCP_ToggleSwitch(0,0) end)
-			vQuickCP_Hdr = vQuickCP_LabelHeader:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
-			vQuickCP_Hdr:SetPoint("LEFT", vQuickCP_LabelHeader, 25, 0)
-			vQuickCP_Hdr:SetText("Display Label?")
+	local vCP_LblHdr = CreateFrame("CheckButton", "vCP_LblHdr", vCP_Main, "InterfaceOptionsCheckButtonTemplate")
+		vCP_LblHdr:SetPoint("TOPLEFT", vCP_Main, 5, -27)
+		vCP_LblHdr:SetChecked(false)
+		vCP_LblHdr:SetScript("OnClick", function() vCP_ToggleSwitch(0) end)
+			vCP_Hdr = vCP_LblHdr:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+			vCP_Hdr:SetPoint("LEFT", vCP_LblHdr, 25, 0)
+			vCP_Hdr:SetText("Display Label?")
 	-- Use Percent?
-	local vQuickCP_Number1 = CreateFrame("CheckButton", "vQuickCP_Number1", vQuickCP_Main, "InterfaceOptionsCheckButtonTemplate")
-		vQuickCP_Number1:SetPoint("TOPLEFT", vQuickCP_Main, 120, -27)
-		vQuickCP_Number1:SetChecked(true)
-		vQuickCP_Number1:SetScript("OnClick", function() vQuickCP_ToggleSwitch(1,1) end)
-			vQuickCP_Hdr = vQuickCP_Number1:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
-			vQuickCP_Hdr:SetPoint("LEFT", vQuickCP_Number1, 25, 0)
-			vQuickCP_Hdr:SetJustifyH("LEFT")
-			vQuickCP_Hdr:SetText("Percent %")
+	local vCP_Number1 = CreateFrame("CheckButton", "vCP_Number1", vCP_Main, "InterfaceOptionsCheckButtonTemplate")
+		vCP_Number1:SetPoint("TOPLEFT", vCP_Main, 120, -27)
+		vCP_Number1:SetChecked(true)
+		vCP_Number1:SetScript("OnClick", function() vCP_ToggleSwitch(1,1) end)
+			vCP_Hdr = vCP_Number1:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+			vCP_Hdr:SetPoint("LEFT", vCP_Number1, 25, 0)
+			vCP_Hdr:SetJustifyH("LEFT")
+			vCP_Hdr:SetText("Percent %")
 	-- Use Remaining?
-	local vQuickCP_Number2 = CreateFrame("CheckButton", "vQuickCP_Number2", vQuickCP_Main, "InterfaceOptionsCheckButtonTemplate")
-		vQuickCP_Number2:SetPoint("TOPLEFT", vQuickCP_Main, 235, -27)
-		vQuickCP_Number2:SetChecked(false)
-		vQuickCP_Number2:SetScript("OnClick", function() vQuickCP_ToggleSwitch(1,2) end)
-			vQuickCP_Hdr = vQuickCP_Number2:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
-			vQuickCP_Hdr:SetPoint("LEFT", vQuickCP_Number2, 25, 0)
-			vQuickCP_Hdr:SetJustifyH("LEFT")
-			vQuickCP_Hdr:SetText("Remain ##")
+	local vCP_Number2 = CreateFrame("CheckButton", "vCP_Number2", vCP_Main, "InterfaceOptionsCheckButtonTemplate")
+		vCP_Number2:SetPoint("TOPLEFT", vCP_Main, 235, -27)
+		vCP_Number2:SetChecked(false)
+		vCP_Number2:SetScript("OnClick", function() vCP_ToggleSwitch(1,2) end)
+			vCP_Hdr = vCP_Number2:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+			vCP_Hdr:SetPoint("LEFT", vCP_Number2, 25, 0)
+			vCP_Hdr:SetJustifyH("LEFT")
+			vCP_Hdr:SetText("Remain ##")
 
 	-- ATT Main List % Only
-	local vQuickCP_MainList = CreateFrame("Button", "vQuickCP_MainList", vQuickCP_Main, "UIPanelButtonTemplate")
-		vQuickCP_MainList:SetSize(110,20)
-		vQuickCP_MainList:SetPoint("TOPLEFT", vQuickCP_Main, 15, -50)
-		vQuickCP_MainList:SetText("Main List %")
-		vQuickCP_MainList:SetScript("OnClick", function() vQuickCP_ATTList(1) end)
+	local vCP_MainList = CreateFrame("Button", "vCP_MainList", vCP_Main, "UIPanelButtonTemplate")
+		vCP_MainList:SetSize(110,20)
+		vCP_MainList:SetPoint("TOPLEFT", vCP_Main, 15, -50)
+		vCP_MainList:SetText("Main List %")
+		vCP_MainList:SetScript("OnClick", function() vCP_ATTList(1) end)
 	-- D&R Main List Only
-	local vQuickCP_DRMainList = CreateFrame("Button", "vQuickCP_DRMainList", vQuickCP_Main, "UIPanelButtonTemplate")
-		vQuickCP_DRMainList:SetSize(110,20)
-		vQuickCP_DRMainList:SetPoint("TOPLEFT", vQuickCP_Main, 125, -50)
-		vQuickCP_DRMainList:SetText("D&R List %")
-		vQuickCP_DRMainList:SetScript("OnClick", function() vQuickCP_ATTList(2) end)
+	local vCP_DRMainList = CreateFrame("Button", "vCP_DRMainList", vCP_Main, "UIPanelButtonTemplate")
+		vCP_DRMainList:SetSize(110,20)
+		vCP_DRMainList:SetPoint("TOPLEFT", vCP_Main, 125, -50)
+		vCP_DRMainList:SetText("D&R List %")
+		vCP_DRMainList:SetScript("OnClick", function() vCP_ATTList(2) end)
 	-- ATT Main & D&R Main List Only
-	local vQuickCP_BothMainList = CreateFrame("Button", "vQuickCP_BothMainList", vQuickCP_Main, "UIPanelButtonTemplate")
-		vQuickCP_BothMainList:SetSize(110,20)
-		vQuickCP_BothMainList:SetPoint("TOPLEFT", vQuickCP_Main, 235, -50)
-		vQuickCP_BothMainList:SetText("Both List %")
-		vQuickCP_BothMainList:SetScript("OnClick", function() vQuickCP_ATTMDRList() end)
+	local vCP_BothMainList = CreateFrame("Button", "vCP_BothMainList", vCP_Main, "UIPanelButtonTemplate")
+		vCP_BothMainList:SetSize(110,20)
+		vCP_BothMainList:SetPoint("TOPLEFT", vCP_Main, 235, -50)
+		vCP_BothMainList:SetText("Both List %")
+		vCP_BothMainList:SetScript("OnClick", function() vCP_ATTMDRList() end)
 		
 	-- Seperator
-	local vQuickCP_Line2 = vQuickCP_Main:CreateTexture("vQuickCP_Line2")
-		vQuickCP_Line2:SetSize(138, 2)
-		vQuickCP_Line2:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-		vQuickCP_Line2:SetColorTexture(.8, .8, .8, .2)
-		vQuickCP_Line2:SetPoint("TOPLEFT",vQuickCP_Main, 8, -73)
+	local vCP_Line2 = vCP_Main:CreateTexture("vCP_Line2")
+		vCP_Line2:SetSize(138, 2)
+		vCP_Line2:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+		vCP_Line2:SetColorTexture(.8, .8, .8, .2)
+		vCP_Line2:SetPoint("TOPLEFT",vCP_Main, 8, -73)
 		
 	-- Pick To Display
-	local vQuickCP_PDis = vQuickCP_Main:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
-		vQuickCP_PDis:SetPoint("TOPLEFT", vQuickCP_Main, 10, -80)
-		vQuickCP_PDis:SetText("|cffFFFF00Pick To Display|r")
+	local vCP_PDis = vCP_Main:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+		vCP_PDis:SetPoint("TOPLEFT", vCP_Main, 10, -80)
+		vCP_PDis:SetText("|cffFFFF00Pick Data To Display|r")
 	-- D&R Main & Sub List
-	local vQuickCP_DRSubList1 = CreateFrame("CheckButton", "vQuickCP_DRSubList1", vQuickCP_Main, "InterfaceOptionsCheckButtonTemplate")
-		vQuickCP_DRSubList1:SetPoint("TOPLEFT", vQuickCP_Main, 5, -90)
-		vQuickCP_DRSubList1:SetChecked(false)
-		vQuickCP_DRSubList1:SetScript("OnClick", function() vQuickCP_ToggleSwitch(2,1) end)
-			vQuickCP_Hdr = vQuickCP_DRSubList1:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
-			vQuickCP_Hdr:SetPoint("LEFT", vQuickCP_DRSubList1, 25, 0)
-			vQuickCP_Hdr:SetJustifyH("LEFT")
-			vQuickCP_Hdr:SetText("Main & Sub")
+	local vCP_DRSubList1 = CreateFrame("CheckButton", "vCP_DRSubList1", vCP_Main, "InterfaceOptionsCheckButtonTemplate")
+		vCP_DRSubList1:SetPoint("TOPLEFT", vCP_Main, 5, -90)
+		vCP_DRSubList1:SetChecked(false)
+		vCP_DRSubList1:SetScript("OnClick", function() vCP_ToggleSwitch(2,1) end)
+			vCP_Hdr = vCP_DRSubList1:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+			vCP_Hdr:SetPoint("LEFT", vCP_DRSubList1, 25, 0)
+			vCP_Hdr:SetJustifyH("LEFT")
+			vCP_Hdr:SetText("Main & Sub")
 	-- D&R Main, Sub & Difficulty List
-	local vQuickCP_DRSubList2 = CreateFrame("CheckButton", "vQuickCP_DRSubList2", vQuickCP_Main, "InterfaceOptionsCheckButtonTemplate")
-		vQuickCP_DRSubList2:SetPoint("TOPLEFT", vQuickCP_Main, 5, -108)
-		vQuickCP_DRSubList2:SetChecked(true)
-		vQuickCP_DRSubList2:SetScript("OnClick", function() vQuickCP_ToggleSwitch(2,2) end)
-			vQuickCP_Hdr = vQuickCP_DRSubList2:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
-			vQuickCP_Hdr:SetPoint("LEFT", vQuickCP_DRSubList2, 25, 0)
-			vQuickCP_Hdr:SetJustifyH("LEFT")
-			vQuickCP_Hdr:SetText("Main, Sub & Diff")
+	local vCP_DRSubList2 = CreateFrame("CheckButton", "vCP_DRSubList2", vCP_Main, "InterfaceOptionsCheckButtonTemplate")
+		vCP_DRSubList2:SetPoint("TOPLEFT", vCP_Main, 5, -108)
+		vCP_DRSubList2:SetChecked(true)
+		vCP_DRSubList2:SetScript("OnClick", function() vCP_ToggleSwitch(2,2) end)
+			vCP_Hdr = vCP_DRSubList2:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+			vCP_Hdr:SetPoint("LEFT", vCP_DRSubList2, 25, 0)
+			vCP_Hdr:SetJustifyH("LEFT")
+			vCP_Hdr:SetText("Main, Sub & Diff")
 
 	-- Pick An Expansion
-	local vQuickCP_PExp = vQuickCP_Main:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
-		vQuickCP_PExp:SetPoint("TOPLEFT", vQuickCP_Main, 10, -135)
-		vQuickCP_PExp:SetText("|cffFFFF00Pick An Expansion|r")
+	local vCP_PExp = vCP_Main:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+		vCP_PExp:SetPoint("TOPLEFT", vCP_Main, 10, -135)
+		vCP_PExp:SetText("|cffFFFF00Pick An Expansion|r")
 	-- Create A List using `Array`
-	local DRExp = { "|cffFFA500All Expansions|r", "Classic", "Burning Crusade", "Wrath of Lich King", "Cataclysm", "Mists of Pandaria", "Warlords of Draenor", "Legion", "Battle for Azeroth", "Shadowlands", "Dragonflight", }
 		DRHeight = -145
-		for i = 1, #DRExp do
-			local vQuickCP_DRList = CreateFrame("CheckButton", "vQuickCP_DRList"..i, vQuickCP_Main, "InterfaceOptionsCheckButtonTemplate")
-				vQuickCP_DRList:SetPoint("TOPLEFT", vQuickCP_Main, 5, DRHeight)
-				vQuickCP_DRList:SetChecked(false)
-				vQuickCP_DRList:SetScript("OnClick", function() vQuickCP_ToggleSwitch(3,i) end)
-					vQuickCP_Hdr = vQuickCP_DRList:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
-					vQuickCP_Hdr:SetPoint("LEFT", vQuickCP_DRList, 25, 0)
-					vQuickCP_Hdr:SetJustifyH("LEFT")
-					vQuickCP_Hdr:SetText(DRExp[i])
+		for i = 1, #ATTDRList do
+			local vCP_DRList = CreateFrame("CheckButton", "vCP_DRList"..i, vCP_Main, "InterfaceOptionsCheckButtonTemplate")
+				vCP_DRList:SetPoint("TOPLEFT", vCP_Main, 5, DRHeight)
+				vCP_DRList:SetChecked(false)
+				vCP_DRList:SetScript("OnClick", function() vCP_ToggleSwitch(3,i) end)
+					vCP_Hdr = vCP_DRList:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+					vCP_Hdr:SetPoint("LEFT", vCP_DRList, 25, 0)
+					vCP_Hdr:SetJustifyH("LEFT")
+					vCP_Hdr:SetText(ATTDRList[i])
 			DRHeight = DRHeight - 18
 		end
 	
 	--Result Box
-	local vQuickCP_Result = CreateFrame("Frame", "vQuickCP_Result", vQuickCP_Main, BackdropTemplateMixin and "BackdropTemplate")
-		vQuickCP_Result:SetBackdrop(BDropB)
-		vQuickCP_Result:SetSize(vQuickCP_Main:GetWidth()-139, vQuickCP_Main:GetHeight()-73)
-		vQuickCP_Result:ClearAllPoints()
-		vQuickCP_Result:SetPoint("TOPRIGHT", vQuickCP_Main, -2, -72)
-		local vQuickCP_ResultScroll = CreateFrame("ScrollFrame", "vQuickCP_ResultScroll", vQuickCP_Result, "UIPanelScrollFrameTemplate")
-			vQuickCP_ResultScroll:SetPoint("TOPLEFT", vQuickCP_Result, 7, -7)
-			vQuickCP_ResultScroll:SetWidth(vQuickCP_Result:GetWidth()-35)
-			vQuickCP_ResultScroll:SetHeight(vQuickCP_Result:GetHeight()-12)
-				vQuickCP_ResultArea = CreateFrame("EditBox", "vQuickCP_ResultArea", vQuickCP_ResultScroll)
-				vQuickCP_ResultArea:SetWidth(vQuickCP_ResultScroll:GetWidth())
-				--vQuickCP_ResultArea:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE,MONOCHROME")
-				vQuickCP_ResultArea:SetFontObject(GameFontNormalSmall)
-				vQuickCP_ResultArea:SetAutoFocus(false)
-				vQuickCP_ResultArea:SetMultiLine(true)
-				vQuickCP_ResultArea:EnableMouse(true)
-				vQuickCP_ResultArea:SetScript("OnEditFocusGained", function() vQuickCP_ResultArea:HighlightText() end)
-			vQuickCP_ResultScroll:SetScrollChild(vQuickCP_ResultArea)
+	local vCP_Result = CreateFrame("Frame", "vCP_Result", vCP_Main, BackdropTemplateMixin and "BackdropTemplate")
+		vCP_Result:SetBackdrop(BDropB)
+		vCP_Result:SetSize(vCP_Main:GetWidth()-150, vCP_Main:GetHeight()-76)
+		--vCP_Result:ClearAllPoints()
+		vCP_Result:SetPoint("TOPRIGHT", vCP_Main, -3, -72)
+		local vCP_ResultScroll = CreateFrame("ScrollFrame", "vCP_ResultScroll", vCP_Result, "UIPanelScrollFrameTemplate")
+			vCP_ResultScroll:SetPoint("TOPLEFT", vCP_Result, 7, -7)
+			vCP_ResultScroll:SetWidth(vCP_Result:GetWidth()-33)
+			vCP_ResultScroll:SetHeight(vCP_Result:GetHeight()-10)
+				vCP_ResultArea = CreateFrame("EditBox", "vCP_ResultArea", vCP_ResultScroll)
+				vCP_ResultArea:SetWidth(vCP_ResultScroll:GetWidth())
+				vCP_ResultArea:SetFontObject(GameFontNormalSmall)
+				vCP_ResultArea:SetAutoFocus(false)
+				vCP_ResultArea:SetMultiLine(true)
+				vCP_ResultArea:EnableMouse(true)
+				vCP_ResultArea:SetScript("OnEditFocusGained", function() vCP_ResultArea:HighlightText() end)
+			--vCP_ResultArea:SetText("ABCDEFGHIJLKMNOPQRSTUVWXYZ_ABCDEFGHIJLKMNOPQRSTUVWXYZ_ABCDEFGHIJLKMNOPQRSTUVWXYZ")
+			vCP_ResultScroll:SetScrollChild(vCP_ResultArea)
 ------------------------------------------------------------------------
 -- Fire Up Events
 ------------------------------------------------------------------------
-	local vQuickCP_OnUpdate = CreateFrame("Frame")
-		vQuickCP_OnUpdate:RegisterEvent("ADDON_LOADED")
-		vQuickCP_OnUpdate:SetScript("OnEvent", function(self, event, ...)
+	local vCP_OnUpdate = CreateFrame("Frame")
+		vCP_OnUpdate:RegisterEvent("ADDON_LOADED")
+		vCP_OnUpdate:SetScript("OnEvent", function(self, event, ...)
 		if event == "ADDON_LOADED" then
-			vQuickCP_OnUpdate:RegisterEvent("PLAYER_LOGIN")
-			vQuickCP_OnUpdate:UnregisterEvent("ADDON_LOADED")
+			vCP_OnUpdate:RegisterEvent("PLAYER_LOGIN")
+			vCP_OnUpdate:UnregisterEvent("ADDON_LOADED")
 		end
 		if event == "PLAYER_LOGIN" then
 			SLASH_vQuickCP1 = '/vqcp'
 			
 			SlashCmdList["vQuickCP"] = function(arg)
 				if IsAddOnLoaded("AllTheThings") then
-					if vQuickCP_Main:IsVisible() then vQuickCP_Main:Hide() else vQuickCP_Main:Show() end
+					if vCP_Main:IsVisible() then vCP_Main:Hide() else vCP_Main:Show() end
 				else
 					DEFAULT_CHAT_FRAME:AddMessage("Error: Cannot Run This without `All The Things`")
 				end
 			end
-			vQuickCP_OnUpdate:UnregisterEvent("PLAYER_LOGIN")
+			vCP_OnUpdate:UnregisterEvent("PLAYER_LOGIN")
 		end
 	end)
