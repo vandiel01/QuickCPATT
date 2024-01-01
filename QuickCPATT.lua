@@ -5,14 +5,48 @@ local vCP_AppNotes = GetAddOnMetadata("QuickCPATT", "Notes")
 ------------------------------------------------------------------------
 -- User Modification If Needed
 ------------------------------------------------------------------------
-local v_ShowHide = false		-- Show (true)/Hide (false) All Times
-local v_PrecDec = 2			-- Decimal Precision Default is 2
-local v_NbrOfLines = 19		-- ATT loves to change their Data/Rows
+local v_ShowHide = false			-- Show (true)/Hide (false) All Times
+local v_PrecDec = 2				-- Decimal Precision Default is 2
+local v_NbrOfLines = 18			-- ATT loves to change their Data/Rows
 --local v_NbrOfXPac = 11		-- Number of Expansions (Including All)
 ------------------------------------------------------------------------
 -- Global Localizations
 ------------------------------------------------------------------------
 local _TData = {}
+local ATTMainList = {
+	"Dungeons & Raids",
+	"Outdoor Zones",
+	"World Drop",
+	"Group Finder",
+	"Achievements", -- Now a Dynamic Listing (Marked in Orange)
+	"Expansion Features",
+	"Holiday",
+	"World Event",
+	"Promotion",
+	"Pet Battles",
+	"PvP",
+	"Crafted Item",
+	"Professions",
+	"Secrets",
+	"Character",
+	"In-Game Shop",
+	"Trading Post",
+	"Black Market Auction House",
+	-- "Factions", -- Removed From ATT 12/13/2023
+}
+local ATTDRList = {
+	"All Expansion",
+	"Classic",
+	"Burning Crusade",
+	"Wrath of the Lich King",
+	"Cataclysm",
+	"Mists of Pandaria",
+	"Warlords of Draenor",
+	"Legion",
+	"Battle for Azeroth",
+	"Shadowlands",
+	"Dragonflight",
+}
 local ATT_Keyword = {
 	"Memory of Scholomance",
 	"Tier 3 Sets",
@@ -29,40 +63,6 @@ local ATT_Keyword = {
 	"10 Player (Heroic)",
 	"25 Player",
 	"25 Player (Heroic)",
-}
-local ATTMainList = {
-	"Dungeons & Raids",
-	"Outdoor Zones",
-	"World Drop",
-	"Group Finder",
-	"Achievements",
-	"Expansion Features",
-	"Holiday",
-	"World Event",
-	"Promotion",
-	"Pet Battles",
-	"PvP",
-	"Crafted Item",
-	"Professions",
-	"Secrets",
-	"Character",
-	"In-Game Shop",
-	"Trading Post",
-	"Black Market Auction House",
-	"Factions",
-}
-local ATTDRList = {
-	"All Expansion",
-	"Classic",
-	"Burning Crusade",
-	"Wrath of the Lich King",
-	"Cataclysm",
-	"Mists of Pandaria",
-	"Warlords of Draenor",
-	"Legion",
-	"Battle for Azeroth",
-	"Shadowlands",
-	"Dragonflight",
 }
 ------------------------------------------------------------------------
 -- Check Toggles and Select Function
@@ -276,6 +276,7 @@ function vCP_ATTSpecXPac(arg)
 							end
 							_DDR_H = _DDR_H:gsub("Looking For Raid ","LFR ")
 							--Exceptions
+							if ( _MDR_H == "Legion" and _SDR_H == "The Emerald Nightmare" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
 							if ( _MDR_H == "Legion" and _SDR_H == "The Nighthold" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
 							if ( _MDR_H == "Legion" and _SDR_H == "Antorus, the Burning Throne" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
 							if ( _MDR_H == "Legion" and _SDR_H == "Neltharion's Lair" and _DDR_H == "Mythic+" ) then ATTKW = false end
@@ -322,7 +323,8 @@ function vCP_ATTAllXPac()
 				( string.format("%."..tonumber(v_PrecDec).."f",(_HData["progress"]/_HData["total"])*100) ) or
 				( (_HData["total"]-_HData["progress"]) )
 			)..
-			( a == 1 and "" or "\n" )
+			( "\n" )
+			--( a == 1 and "" or "\n" )
 		)
 		-- Achievements, World Boss, Raid, Dungeon Header
 		local _SData = _MData[a]["g"]
@@ -363,6 +365,7 @@ function vCP_ATTAllXPac()
 							end
 							_DDR_H = _DDR_H:gsub("Looking For Raid ","LFR ")
 							--Exceptions
+							if ( _MDR_H == "Legion" and _SDR_H == "The Emerald Nightmare" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
 							if ( _MDR_H == "Legion" and _SDR_H == "The Nighthold" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
 							if ( _MDR_H == "Legion" and _SDR_H == "Antorus, the Burning Throne" and _DDR_H == "LFR / Normal / Heroic / Mythic" ) then ATTKW = false end
 							if ( _MDR_H == "Legion" and _SDR_H == "Neltharion's Lair" and _DDR_H == "Mythic+" ) then ATTKW = false end
@@ -602,6 +605,7 @@ end
 			SlashCmdList["vQuickCP"] = function(arg)
 				if IsAddOnLoaded("AllTheThings") then
 					if vCP_Main:IsVisible() then vCP_Main:Hide() else vCP_Main:Show() end
+					if not _G["AllTheThings-Window-Prime"]:IsVisible() then print("You need to open AllTheThings Main Window to run this addon properly, you can close when you're done getting data on QuickCPATT from ATT") end
 				else
 					DEFAULT_CHAT_FRAME:AddMessage("Error: Cannot Run This without `All The Things`")
 				end

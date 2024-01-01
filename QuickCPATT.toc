@@ -1,5 +1,5 @@
 ## Author: Vandiel
-## Interface: 100107
+## Interface: 100200
 ## Version: 1.5
 ## Title: .Quick ATT Copy-Paste
 ## IconTexture: Interface/ICONS/Achievement_ScenarioChallenge_100
@@ -9,4 +9,3 @@
 ### No Saved Variables
 
 QuickCPATT.lua
-HardCode.lua
